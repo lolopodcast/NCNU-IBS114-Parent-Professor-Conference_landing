@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NCNU IBS 2025 Freshman & Parents Interactive Page</title>
+  <!-- Tailwind (Play CDN) with Typography plugin for .prose -->
+  <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: {} }
+    }
+  </script>
+  <style>
+    /* Print-friendly footer */
+    @media print { a[href]::after { content: "" !important; } }
+  </style>
+</head>
+<body class="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-100 via-white to-zinc-50 text-zinc-900">
+  <div id="root"></div>
+
+  <!-- React 18 + ReactDOM (UMD) -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <!-- Babel Standalone to compile JSX in-browser (for quick demo / no-build) -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Lucide icons (vanilla) -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script type="text/babel">
+    const { useMemo, useState, useEffect } = React;
+
+    // ------------------ CONFIG (Edit me) ------------------
+    const CONFIG = {
+      school: "National Chi Nan University (NCNU)",
+      dept: "Department of International Business Studies (IBS)",
+      mentor: "Prof. Shih‑Min Lo",
+      event: {
+        title: "Parent‑Teacher Conference",
+        date: "2025-08-24",
+        time: "10:00–12:00",
+        venue: "IBS Building, Rm. 201 (Tentative)",
+      },
+      links: {
+        ncnuPortal: "#",
+        ibsHomepage: "#",
+        moodle: "#",
+        library: "#",
+        counseling: "#",
+        dorm: "#",
+        campusMap: "#",
+        scholarships: "#",
+        emiPolicy: "#",
+        englishCenter: "#",
+        itHelpdesk: "#",
+      },
+      contacts: [
+        { label: "Academic Mentor", name: "Prof. Shih‑Min Lo", email: "", phone: "", note: "Office hours by appointment" },
+        { label: "IBS Office", name: "Program Assistants", email: "", phone: "", note: "Admin inquiries & documents" },
+      ],
+      keyDates: [
+        { date: "2025-08-24", name: "Parent‑Teacher Conference", type: "event" },
+        { date: "2025-09-09", name: "Classes Begin (Fall)", type: "academic" },
+        { date: "2025-09-09", name: "Add/Drop Opens", type: "academic" },
+        { date: "2025-09-23", name: "Add/Drop Closes", type: "deadline" },
+        { date: "2025-10-27", name: "Midterms Week (TBC)", type: "exam" },
+        { date: "2025-12-15", name: "Finals Week (TBC)", type: "exam" },
+      ],
+    };
+
+    // ------------------ I18N (Chinese / English) ------------------
+    const i18n = {
+      zh: {
+        langName: "繁體中文",
+        title: "暨大國企系 2025 新生與家長互動頁",
+        subtitle: `${CONFIG.school}｜${CONFIG.dept}`,
+        heroLead: "親師座談重點提醒與大一新生指南",
+        ctas: { rsvp: "簽到 / 意見回饋", start: "開始導覽", print: "列印 / 儲存成 PDF", downloadICS: "加入行事曆(.ics)" },
+        notice: "本頁為示範範本，可直接使用或依系上需求調整文字、日期與連結。",
+        tabs: { students: "給新生", parents: "給家長", faq: "常見問題", resources: "資源連結" },
+        blocks: {
+          welcome: {
+            title: "歡迎加入暨大國企系！",
+            body: `在IBS，我們強調\n1) EMI（全英授課/部分英授）\n2) 問題導向學習（PBL）\n3) 自主學習（SDL）。\n請善用學校資源，逐步培養時間管理、團隊合作與跨文化溝通能力。`,
+            chips: ["EMI", "PBL", "SDL", "學習社群", "國際視野"],
+          },
+          studentChecklist: {
+            title: "新生開學前後待辦清單",
+            intro: "勾選完成項目，可按「重設」重新開始。",
+            items: [
+              "完成校務資訊入口註冊與校園郵件設定",
+              "確認選課規則：必修 / 選修 / 英語/第二外語",
+              "熟悉EMI與課堂規範：出席、合作、學術誠信",
+              "加入導師群組，完成學習需求/生涯規劃問卷",
+              "了解圖書館、英文輔導中心、學習資源與諮商",
+              "關注加退選與各項申請的截止日期",
+            ],
+            reset: "重設清單",
+          },
+          parentsGuide: {
+            title: "給家長：如何支持孩子的大一適應",
+            bullets: [
+              "鼓勵獨立自主管理時間與課業，建立對話而非接管。",
+              "一起了解EMI：讓孩子在課堂內外增加英語使用頻率。",
+              "關注身心健康與睡眠作息，必要時善用校內諮商資源。",
+              "以成果為導向的關心：詢問學習目標、方法與反思。",
+              "鼓勵參與社團/系學會/國際交流，培養人際與領導力。",
+            ],
+            tip: "家長與師長是同一隊：多鼓勵、多傾聽，共同守護孩子的學習動機。",
+          },
+          emiPblSdl: {
+            title: "EMI、PBL、SDL 是什麼？",
+            rows: [
+              { k: "EMI（English‑Medium Instruction）", v: "課程內容以英語進行（全英/部分英），強化專業領域中的英語聽說讀寫能力。" },
+              { k: "PBL（Problem‑Based Learning）", v: "以真實情境/企業個案為核心，透過分組合作解題，培養分析與創新能力。" },
+              { k: "SDL（Self‑Directed Learning）", v: "自訂學習目標與策略，主動尋找資源，建立長期學習習慣。" },
+            ],
+          },
+          keyDates: {
+            title: "重要時程",
+            hint: "實際日期以校方公告為準，請隨時留意系辦通知。",
+          },
+          faq: {
+            title: "常見問題",
+            list: [
+              { q: "英語不夠流利怎麼辦？", a: "請善用英語中心與同儕學習，課堂重視參與與進步，不以口音評分。" },
+              { q: "可以打工或參加社團嗎？", a: "建議以學業為優先，妥善安排時間，選擇具學習價值的活動。" },
+              { q: "課堂出缺席如何計算？", a: "依教師與課程規範，請務必準時並遵守學術誠信。" },
+              { q: "學術誠信包含哪些？", a: "不得抄襲與代寫，報告需標註來源；小組合作需明確分工與紀錄。" },
+              { q: "遇到壓力怎麼調適？", a: "可與導師或諮商中心聯繫，建立運動與睡眠習慣，尋求同儕支持。" },
+            ],
+          },
+          resources: {
+            title: "資源連結",
+            list: [
+              { label: "NCNU 校務入口", href: CONFIG.links.ncnuPortal },
+              { label: "IBS 系網", href: CONFIG.links.ibsHomepage },
+              { label: "Moodle / e‑Learning", href: CONFIG.links.moodle },
+              { label: "圖書館", href: CONFIG.links.library },
+              { label: "學生輔導與諮商", href: CONFIG.links.counseling },
+              { label: "宿舍與生活資訊", href: CONFIG.links.dorm },
+              { label: "校園地圖", href: CONFIG.links.campusMap },
+              { label: "獎助學金", href: CONFIG.links.scholarships },
+              { label: "EMI 政策與資源", href: CONFIG.links.emiPolicy },
+              { label: "英文寫作與口語輔導", href: CONFIG.links.englishCenter },
+              { label: "IT 帳號與技術支援", href: CONFIG.links.itHelpdesk },
+            ],
+          },
+          feedback: {
+            title: "簽到 / 意見回饋",
+            name: "姓名",
+            role: "身分",
+            roles: ["新生", "家長", "其他"],
+            msg: "留言（可選）",
+            submit: "送出",
+            thanks: "感謝您的回饋！",
+          },
+          footer: {
+            disclaimer: "本頁資訊僅供參考，若有出入以學校公告為準。",
+            contact: "聯絡方式",
+          },
+        },
+      },
+      en: {
+        langName: "English",
+        title: "NCNU IBS 2025 Freshman & Parents Interactive Page",
+        subtitle: `${CONFIG.school} | ${CONFIG.dept}`,
+        heroLead: "Key reminders & First‑Year Guide for Freshmen and Parents",
+        ctas: { rsvp: "RSVP / Feedback", start: "Start Tour", print: "Print / Save as PDF", downloadICS: "Add to Calendar (.ics)" },
+        notice: "This is a ready‑to‑use template. Feel free to customize text, dates, and links.",
+        tabs: { students: "For Students", parents: "For Parents", faq: "FAQ", resources: "Resources" },
+        blocks: {
+          welcome: {
+            title: "Welcome to IBS!",
+            body: `At IBS, we emphasize\n1) EMI (English‑Medium Instruction)\n2) PBL (Problem‑Based Learning)\n3) SDL (Self‑Directed Learning).\nLeverage campus resources and build time management, teamwork, and cross‑cultural communication skills.`,
+            chips: ["EMI", "PBL", "SDL", "Learning Communities", "Global Mindset"],
+          },
+          studentChecklist: {
+            title: "Pre‑ & Early‑Semester Checklist",
+            intro: "Tick items as you complete them. Use Reset to start over.",
+            items: [
+              "Activate portal account and set up student email",
+              "Review curriculum rules: Required/Electives, English/2nd language",
+              "Understand EMI & class rules: attendance, teamwork, academic integrity",
+              "Join mentor group; complete learning needs/career survey",
+              "Explore Library, English Center, learning support & counseling",
+              "Track add/drop and application deadlines",
+            ],
+            reset: "Reset Checklist",
+          },
+          parentsGuide: {
+            title: "Parent Tips: Supporting First‑Year Transition",
+            bullets: [
+              "Encourage independent time & study management—coach, don’t commandeer.",
+              "Understand EMI; help increase authentic English use inside/outside class.",
+              "Watch sleep and well‑being; suggest Counseling Center when needed.",
+              "Focus on outcomes: ask about goals, methods, and reflections.",
+              "Promote clubs, student union, and exchanges to build leadership & networks.",
+            ],
+            tip: "Faculty and families are one team—encourage and listen to protect motivation.",
+          },
+          emiPblSdl: {
+            title: "What are EMI, PBL, and SDL?",
+            rows: [
+              { k: "EMI (English‑Medium Instruction)", v: "Courses delivered fully/partly in English to strengthen domain‑specific language skills." },
+              { k: "PBL (Problem‑Based Learning)", v: "Real contexts/case work in teams to build analysis and innovation." },
+              { k: "SDL (Self‑Directed Learning)", v: "Students set goals/strategies, seek resources, and form lifelong habits." },
+            ],
+          },
+          keyDates: {
+            title: "Key Dates",
+            hint: "Always follow official announcements for the latest dates.",
+          },
+          faq: {
+            title: "Frequently Asked Questions",
+            list: [
+              { q: "What if my English isn’t fluent?", a: "Use the English Center and peer practice; classes value participation and progress over accent." },
+              { q: "Can I work part‑time or join clubs?", a: "Prioritize academics; choose activities with learning value and manage time carefully." },
+              { q: "How is attendance handled?", a: "Follow each course’s rules; be punctual and uphold academic integrity." },
+              { q: "What is academic integrity?", a: "No plagiarism/ghostwriting; cite sources; document fair group contribution." },
+              { q: "How do I cope with stress?", a: "Talk to your mentor or Counseling Center; keep good sleep and exercise habits; lean on peers." },
+            ],
+          },
+          resources: {
+            title: "Useful Links",
+            list: [
+              { label: "NCNU Portal", href: CONFIG.links.ncnuPortal },
+              { label: "IBS Website", href: CONFIG.links.ibsHomepage },
+              { label: "Moodle / e‑Learning", href: CONFIG.links.moodle },
+              { label: "Library", href: CONFIG.links.library },
+              { label: "Counseling & Guidance", href: CONFIG.links.counseling },
+              { label: "Dorm & Campus Life", href: CONFIG.links.dorm },
+              { label: "Campus Map", href: CONFIG.links.campusMap },
+              { label: "Scholarships & Aid", href: CONFIG.links.scholarships },
+              { label: "EMI Policy & Resources", href: CONFIG.links.emiPolicy },
+              { label: "English Support Center", href: CONFIG.links.englishCenter },
+              { label: "IT Helpdesk / Accounts", href: CONFIG.links.itHelpdesk },
+            ],
+          },
+          feedback: {
+            title: "RSVP / Feedback",
+            name: "Name",
+            role: "Role",
+            roles: ["Freshman", "Parent", "Other"],
+            msg: "Message (optional)",
+            submit: "Submit",
+            thanks: "Thanks for your feedback!",
+          },
+          footer: {
+            disclaimer: "Information is indicative; official announcements prevail.",
+            contact: "Contacts",
+          },
+        },
+      },
+    };
+
+    // ------------------ Helpers ------------------
+    const fmtDate = (d) => new Date(d + "T00:00:00").toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+
+    const Icon = ({ name, className = "w-5 h-5" }) => (
+      <i data-lucide={name} className={className}></i>
+    );
+
+    const Section = ({ icon, title, children, className = "" }) => (
+      <section className={`bg-white/80 dark:bg-zinc-900/70 backdrop-blur rounded-2xl shadow-sm border border-zinc-200/60 dark:border-zinc-800 p-6 ${className}`}>
+        <div className="flex items-center gap-3 mb-3">
+          {icon && <Icon name={icon} />}
+          <h2 className="text-xl font-semibold">{title}</h2>
+        </div>
+        <div className="prose prose-zinc max-w-none text-sm leading-relaxed">{children}</div>
+      </section>
+    );
+
+    const Pill = ({ children }) => (
+      <span className="px-2 py-1 rounded-full bg-zinc-100 text-xs mr-2 mb-2 inline-flex items-center gap-1"><Icon name="globe" className="w-4 h-4" />{children}</span>
+    );
+
+    const Toggle = ({ value, onChange, labels }) => (
+      <div className="inline-flex items-center rounded-full border border-zinc-300 p-1 bg-white">
+        {["zh", "en"].map((lang) => (
+          <button
+            key={lang}
+            onClick={() => onChange(lang)}
+            className={`px-3 py-1 text-sm rounded-full transition ${value === lang ? "bg-zinc-900 text-white" : "text-zinc-600"}`}
+          >
+            {labels[lang]}
+          </button>
+        ))}
+      </div>
+    );
+
+    const Accordion = ({ items }) => {
+      const [open, setOpen] = useState(null);
+      return (
+        <div className="divide-y divide-zinc-200">
+          {items.map((it, idx) => (
+            <div key={idx}>
+              <button onClick={() => setOpen(open === idx ? null : idx)} className="w-full flex items-center justify-between py-3 text-left">
+                <span className="font-medium">{it.q}</span>
+                <Icon name="chevron-down" className={`w-4 h-4 transition ${open === idx ? "rotate-180" : ""}`} />
+              </button>
+              {open === idx && (<div className="pb-4 text-sm text-zinc-700">{it.a}</div>)}
+            </div>
+          ))}
+        </div>
+      );
+    };
+
+    const Checklist = ({ title, intro, items, resetLabel }) => {
+      const [state, setState] = useState(items.map(() => false));
+      const percent = Math.round((state.filter(Boolean).length / items.length) * 100);
+      return (
+        <Section icon="clipboard-list" title={title}>
+          <p className="mb-3">{intro}</p>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="h-2 bg-zinc-200 rounded w-full overflow-hidden">
+              <div className="h-full bg-zinc-900" style={{ width: `${percent}%` }} />
+            </div>
+            <span className="text-xs tabular-nums w-10 text-right">{percent}%</span>
+            <button onClick={() => setState(items.map(() => false))} className="text-xs underline">{resetLabel}</button>
+          </div>
+          <ul className="space-y-2">
+            {items.map((text, i) => (
+              <li key={i} className="flex items-start gap-3">
+                <input type="checkbox" checked={state[i]} onChange={(e) => setState((s) => s.map((v, idx) => (idx === i ? e.target.checked : v)))} className="mt-1 w-4 h-4" />
+                <span className={`${state[i] ? "line-through opacity-60" : ""}`}>{text}</span>
+              </li>
+            ))}
+          </ul>
+        </Section>
+      );
+    };
+
+    const KeyDates = ({ title, hint, items }) => {
+      const color = (t) => ({ event: "bg-amber-100", academic: "bg-emerald-100", deadline: "bg-rose-100", exam: "bg-indigo-100" }[t] || "bg-zinc-100");
+      return (
+        <Section icon="calendar-days" title={title}>
+          <p className="text-xs -mt-1 mb-3 opacity-75">{hint}</p>
+          <ol className="space-y-3">
+            {items.map((d, i) => (
+              <li key={i} className="flex items-start gap-4">
+                <div className={`mt-1 w-2 h-2 rounded-full ${d.type === "deadline" ? "bg-rose-500" : d.type === "exam" ? "bg-indigo-500" : d.type === "academic" ? "bg-emerald-500" : "bg-amber-500"}`} />
+                <div className="flex-1">
+                  <div className="text-sm font-medium">{fmtDate(d.date)} · {d.name}</div>
+                  <div className={`inline-block mt-1 text-[10px] px-2 py-1 rounded ${color(d.type)}`}>{d.type}</div>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </Section>
+      );
+    };
+
+    const Resources = ({ title, list }) => (
+      <Section icon="book-open" title={title}>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {list.map((r, i) => (
+            <a key={i} href={r.href} target="_blank" rel="noreferrer" className="group border border-zinc-200 rounded-xl p-4 hover:shadow-sm transition bg-white">
+              <div className="flex items-center justify-between">
+                <div className="font-medium">{r.label}</div>
+                <Icon name="external-link" className="w-4 h-4 opacity-60" />
+              </div>
+            </a>
+          ))}
+        </div>
+      </Section>
+    );
+
+    const FeedbackForm = ({ t }) => {
+      const [submitted, setSubmitted] = useState(false);
+      const [form, setForm] = useState({ name: "", role: t.roles[0], msg: "" });
+      return (
+        <Section icon="message-square" title={t.title}>
+          {submitted ? (
+            <div className="flex items-center gap-2 text-emerald-600"><Icon name="check-circle-2" className="w-5 h-5" />{t.thanks}</div>
+          ) : (
+            <form onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }} className="grid sm:grid-cols-2 gap-3">
+              <label className="text-sm">
+                <span className="block mb-1">{t.name}</span>
+                <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full border border-zinc-300 rounded-lg px-3 py-2 bg-white" placeholder="" />
+              </label>
+              <label className="text-sm">
+                <span className="block mb-1">{t.role}</span>
+                <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} className="w-full border border-zinc-300 rounded-lg px-3 py-2 bg-white">
+                  {t.roles.map((r) => <option key={r}>{r}</option>)}
+                </select>
+              </label>
+              <label className="text-sm sm:col-span-2">
+                <span className="block mb-1">{t.msg}</span>
+                <textarea value={form.msg} onChange={(e) => setForm({ ...form, msg: e.target.value })} rows={4} className="w-full border border-zinc-300 rounded-lg px-3 py-2 bg-white" />
+              </label>
+              <div className="sm:col-span-2">
+                <button className="px-4 py-2 rounded-xl bg-zinc-900 text-white">
+                  {t.submit}
+                </button>
+              </div>
+            </form>
+          )}
+        </Section>
+      );
+    };
+
+    const ContactCard = ({ t }) => {
+      const title = t?.contact || "Contacts";
+      return (
+        <Section icon="users" title={title}>
+          <div className="grid sm:grid-cols-2 gap-3">
+            {CONFIG.contacts.map((c, i) => (
+              <div key={i} className="border border-zinc-200 rounded-xl p-4 bg-white">
+                <div className="text-sm text-zinc-500">{c.label}</div>
+                <div className="font-medium text-lg">{c.name}</div>
+                {c.note && <div className="text-xs opacity-80 mt-1">{c.note}</div>}
+                <div className="flex flex-col gap-1 mt-3 text-sm">
+                  {c.email ? (
+                    <a className="inline-flex items-center gap-2 hover:underline" href={`mailto:${c.email}`}><Icon name="mail" className="w-4 h-4" />{c.email}</a>
+                  ) : (
+                    <div className="inline-flex items-center gap-2 opacity-60"><Icon name="mail" className="w-4 h-4" /><em>email</em></div>
+                  )}
+                  {c.phone ? (
+                    <a className="inline-flex items-center gap-2 hover:underline" href={`tel:${c.phone}`}><Icon name="phone" className="w-4 h-4" />{c.phone}</a>
+                  ) : (
+                    <div className="inline-flex items-center gap-2 opacity-60"><Icon name="phone" className="w-4 h-4" /><em>phone</em></div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </Section>
+      );
+    };
+
+    const Hero = ({ lang, setLang }) => {
+      const onPrint = () => window.print();
+      const downloadICS = () => {
+        const { date, time, venue } = CONFIG.event;
+        const pad = (n) => String(n).padStart(2, "0");
+        const [hh, mm] = (time || "10:00").split("–")[0].split(":");
+        const start = new Date(date + "T" + `${pad(hh)}:${pad(mm)}:00`);
+        const end = new Date(start.getTime() + 60 * 60 * 1000);
+        const dt = (d) => `${d.getUTCFullYear()}${pad(d.getUTCMonth()+1)}${pad(d.getUTCDate())}T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}00Z`;
+        const ics = [
+          "BEGIN:VCALENDAR",
+          "VERSION:2.0",
+          "PRODID:-//NCNU IBS//Freshman 2025//EN",
+          "BEGIN:VEVENT",
+          `UID:${Date.now()}@ncnu-ibs`,
+          `DTSTAMP:${dt(new Date())}`,
+          `DTSTART:${dt(start)}`,
+          `DTEND:${dt(end)}`,
+          `SUMMARY:${CONFIG.dept} ${CONFIG.event.title}`,
+          `LOCATION:${venue}`,
+          "END:VEVENT",
+          "END:VCALENDAR",
+        ].join("\n");
+        const blob = new Blob([ics], { type: "text/calendar" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "ncnu-ibs-parent-teacher-2025.ics";
+        a.click();
+      };
+
+      const t = i18n[lang] || i18n.en;
+
+      return (
+        <div className="relative rounded-3xl overflow-hidden border border-zinc-200 bg-gradient-to-br from-zinc-50 to-white p-6 sm:p-8">
+          <div className="flex flex-col lg:flex-row lg:items-end gap-6">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-3">
+                <Icon name="graduation-cap" className="w-6 h-6" />
+                <div className="text-sm opacity-75">{t.subtitle}</div>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t.title}</h1>
+              <p className="mt-2 text-zinc-600 text-sm leading-relaxed">{t.heroLead}</p>
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                <Pill>2025/08/24</Pill>
+                <Pill>{CONFIG.event.venue}</Pill>
+                <Pill>IBS · NCNU</Pill>
+              </div>
+              <div className="mt-5 flex flex-wrap items-center gap-3">
+                <button className="px-4 py-2 rounded-xl bg-zinc-900 text-white inline-flex items-center gap-2"><Icon name="message-square" className="w-4 h-4" />{t.ctas.rsvp}</button>
+                <a href="#start" className="px-4 py-2 rounded-xl border inline-flex items-center gap-2"><Icon name="flag" className="w-4 h-4" />{t.ctas.start}</a>
+                <button onClick={onPrint} className="px-4 py-2 rounded-xl border inline-flex items-center gap-2"><Icon name="printer" className="w-4 h-4" />{t.ctas.print}</button>
+                <button onClick={downloadICS} className="px-4 py-2 rounded-xl border inline-flex items-center gap-2"><Icon name="download" className="w-4 h-4" />{t.ctas.downloadICS}</button>
+              </div>
+            </div>
+            <div className="flex items-end justify-between lg:flex-col lg:items-end gap-3 min-w-[260px]">
+              <div className="text-xs px-3 py-2 rounded-full bg-amber-50 border border-amber-200 inline-flex items-center gap-2 text-amber-800">
+                <Icon name="info" className="w-4 h-4" />
+                <span>{t.notice}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Icon name="languages" className="w-4 h-4 opacity-70" />
+                <Toggle value={lang} onChange={setLang} labels={{ zh: i18n.zh.langName, en: i18n.en.langName }} />
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const App = () => {
+      const [lang, setLang] = useState('zh');
+      const t = (i18n[lang] || i18n.en);
+      const keyDatesSorted = useMemo(() => CONFIG.keyDates.slice().sort((a, b) => (a.date.localeCompare(b.date))), []);
+
+      // Ensure lucide icons render after each update
+      useEffect(() => { if (window.lucide) window.lucide.createIcons(); });
+
+      return (
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          <Hero lang={lang} setLang={setLang} />
+          <div id="start" className="grid lg:grid-cols-3 gap-6 mt-8">
+            <div className="lg:col-span-2 space-y-6">
+              <Section icon="globe" title={t.blocks.welcome.title}>
+                <p className="whitespace-pre-line">{t.blocks.welcome.body}</p>
+                <div className="mt-3 flex flex-wrap">{t.blocks.welcome.chips.map((c) => <Pill key={c}>{c}</Pill>)}</div>
+              </Section>
+
+              <div className="rounded-2xl border border-zinc-200 overflow-hidden">
+                <div className="flex text-sm">
+                  <a href="#tab-students" className="flex-1 p-3 text-center bg-zinc-50 hover:underline">{t.tabs.students}</a>
+                  <a href="#tab-parents" className="flex-1 p-3 text-center bg-zinc-50 hover:underline">{t.tabs.parents}</a>
+                </div>
+                <div className="p-6 grid md:grid-cols-2 gap-6">
+                  <Checklist
+                    title={t.blocks.studentChecklist.title}
+                    intro={t.blocks.studentChecklist.intro}
+                    items={t.blocks.studentChecklist.items}
+                    resetLabel={t.blocks.studentChecklist.reset}
+                  />
+
+                  <Section icon="users" title={t.blocks.parentsGuide.title}>
+                    <ul className="list-disc pl-5 space-y-2">
+                      {t.blocks.parentsGuide.bullets.map((b, i) => (<li key={i}>{b}</li>))}
+                    </ul>
+                    <div className="mt-3 text-xs opacity-80">{t.blocks.parentsGuide.tip}</div>
+                  </Section>
+                </div>
+              </div>
+
+              <Section icon="book-open" title={t.blocks.emiPblSdl.title}>
+                <dl className="grid sm:grid-cols-2 gap-3">
+                  {t.blocks.emiPblSdl.rows.map((r, i) => (
+                    <div key={i} className="p-4 rounded-xl bg-zinc-50 border border-zinc-200">
+                      <dt className="font-medium mb-1">{r.k}</dt>
+                      <dd className="text-sm opacity-90">{r.v}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </Section>
+
+              <Section icon="message-square" title={t.blocks.faq.title}>
+                <Accordion items={t.blocks.faq.list} />
+              </Section>
+
+              <FeedbackForm t={t.blocks.feedback} />
+            </div>
+
+            <div className="space-y-6">
+              <KeyDates title={t.blocks.keyDates.title} hint={t.blocks.keyDates.hint} items={keyDatesSorted} />
+              <Resources title={t.blocks.resources.title} list={t.blocks.resources.list} />
+              <ContactCard t={t.blocks.footer} />
+            </div>
+          </div>
+
+          <footer className="mt-10 pt-6 border-t border-zinc-200 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2 opacity-80">
+              <Icon name="info" className="w-4 h-4" />
+              <span>{t.blocks?.footer?.disclaimer || (lang === 'zh' ? '本頁資訊僅供參考，若有出入以學校公告為準。' : 'Information is indicative; official announcements prevail.')}</span>
+            </div>
+            <div className="opacity-60">© 2025 {CONFIG.dept}, {CONFIG.school}. All rights reserved.</div>
+          </footer>
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+    // First render icons
+    if (window.lucide) window.lucide.createIcons();
+  </script>
+</body>
+</html>
