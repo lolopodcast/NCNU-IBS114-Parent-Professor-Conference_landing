@@ -55,6 +55,12 @@
                     </button>
                     <!-- Language Toggle -->
                     <button id="lang-toggle" class="btn btn-secondary" data-lang-key="langToggle">English</button>
+                    <!-- Scroll to Player Button -->
+                    <button id="scroll-to-player-btn" data-lang-key="scrollToPlayer" data-lang-attr="title" title="暫停並返回播放器" class="btn btn-secondary !px-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1zm4 0a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
                 </div>
             </div>
             <div class="py-4 border-t border-gray-200 dark:border-gray-700">
@@ -173,14 +179,6 @@
     <footer class="text-center py-6 mt-8 border-t dark:border-gray-700">
         <p class="text-sm text-gray-500" data-lang-key="footer">NCNU IBS Freshman Guide. Interactive Webpage by Gemini.</p>
     </footer>
-
-    <!-- Scroll to Player Button -->
-    <button id="scroll-to-player-btn" data-lang-key="scrollToPlayer" data-lang-attr="title" title="回到播放器" class="hidden fixed bottom-6 right-6 btn btn-primary !p-3 rounded-full shadow-lg z-50 transition-opacity duration-300">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-        </svg>
-    </button>
 
     <script>
         // --- DATA ---
@@ -2971,7 +2969,7 @@ So all of this deserves careful thought.
                 subtitlesTitle: "雙語字幕稿 (點擊可跳轉)",
                 loadingSubtitles: "字幕載入中...",
                 footer: "暨大國企系新生指南・Gemini 互動網頁製作",
-                scrollToPlayer: "回到播放器",
+                scrollToPlayer: "暫停並返回播放器",
                 retakeQuiz: "再試一次"
             },
             "en": {
@@ -3009,7 +3007,7 @@ So all of this deserves careful thought.
                 subtitlesTitle: "Bilingual Subtitles (Click to Jump)",
                 loadingSubtitles: "Loading subtitles...",
                 footer: "NCNU IBS Freshman Guide. Interactive Webpage by Gemini.",
-                scrollToPlayer: "Scroll to Player",
+                scrollToPlayer: "Pause & Return to Player",
                 retakeQuiz: "Try Again"
             }
         };
@@ -3235,7 +3233,9 @@ So all of this deserves careful thought.
             currentLang = (currentLang === 'zh-Hant') ? 'en' : 'zh-Hant';
             updateAllText();
             renderSubtitles();
-            renderQuiz();
+            // Re-render the same quiz questions but in the new language
+            const currentQuestions = Array.from(displayedQuestionIndices).map(i => fullQuizData[i]);
+            renderQuiz(currentQuestions.length > 0 ? currentQuestions : getNewQuizSet());
         }
 
         function updateAllText() {
@@ -3334,28 +3334,67 @@ So all of this deserves careful thought.
         
         // 4. Quiz Logic
         function getNewQuizSet() {
-            let availableQuestions = fullQuizData.map((_, i) => i).filter(i => !displayedQuestionIndices.has(i));
+            // Group questions by category
+            const questionsByCategory = fullQuizData.reduce((acc, q, i) => {
+                if (!acc[q.category]) {
+                    acc[q.category] = [];
+                }
+                acc[q.category].push({ ...q, originalIndex: i });
+                return acc;
+            }, {});
+
+            let availableCategories = Object.keys(questionsByCategory);
             
-            if (availableQuestions.length < 3) {
+            // If we've used up all questions, reset
+            if (displayedQuestionIndices.size >= fullQuizData.length) {
                 displayedQuestionIndices.clear();
-                availableQuestions = fullQuizData.map((_, i) => i);
             }
 
-            const selectedIndices = [];
-            for (let i = 0; i < 3; i++) {
-                const randomIndex = Math.floor(Math.random() * availableQuestions.length);
-                const selectedIndex = availableQuestions.splice(randomIndex, 1)[0];
-                selectedIndices.push(selectedIndex);
-                displayedQuestionIndices.add(selectedIndex);
+            const selectedQuestions = [];
+            while(selectedQuestions.length < 3 && availableCategories.length > 0) {
+                // Pick a random category
+                const randomCategoryIndex = Math.floor(Math.random() * availableCategories.length);
+                const category = availableCategories[randomCategoryIndex];
+                
+                // Get available questions from this category
+                const availableInCategory = questionsByCategory[category].filter(q => !displayedQuestionIndices.has(q.originalIndex));
+
+                if (availableInCategory.length > 0) {
+                    // Pick a random question from the category
+                    const randomQuestionIndex = Math.floor(Math.random() * availableInCategory.length);
+                    const question = availableInCategory[randomQuestionIndex];
+                    selectedQuestions.push(question);
+                    displayedQuestionIndices.add(question.originalIndex);
+                }
+                
+                // Remove category if all its questions have been shown
+                 if (questionsByCategory[category].every(q => displayedQuestionIndices.has(q.originalIndex))) {
+                    availableCategories.splice(randomCategoryIndex, 1);
+                 }
             }
             
-            return selectedIndices.map(i => fullQuizData[i]);
+            // If we couldn't get 3 (e.g., end of cycle), reset and fill up
+            if (selectedQuestions.length < 3) {
+                 displayedQuestionIndices.clear();
+                 // Clear the selected ones to avoid duplicates in the new set
+                 selectedQuestions.forEach(q => displayedQuestionIndices.add(q.originalIndex));
+                 const newSet = getNewQuizSet(); // Recursive call to get a fresh set
+                 return [...selectedQuestions, ...newSet].slice(0, 3);
+            }
+
+            return selectedQuestions;
         }
+
 
         function renderQuiz(questionsToRender) {
             const container = document.getElementById('quiz-container');
             container.innerHTML = '';
-            questionsToRender.forEach((q, index) => {
+            
+            if (!questionsToRender || questionsToRender.length === 0) {
+                questionsToRender = getNewQuizSet();
+            }
+
+            questionsToRender.forEach((q) => {
                 const originalIndex = fullQuizData.indexOf(q);
                 const questionText = currentLang === 'zh-Hant' ? q.question_zh : q.question_en;
                 
@@ -3406,7 +3445,9 @@ So all of this deserves careful thought.
                         feedbackEl.className = 'feedback mt-4 text-sm font-semibold text-green-600 dark:text-green-400';
                     } else {
                         e.target.classList.add('!bg-red-500', '!text-white');
-                        feedbackEl.textContent = currentLang === 'zh-Hant' ? questionData.feedback_incorrect_zh : questionData.feedback_incorrect_en;
+                        const incorrect_feedback_zh = "再想一下喔！正確答案已標示為綠色。";
+                        const incorrect_feedback_en = "Not quite! The correct answer is highlighted in green.";
+                        feedbackEl.textContent = currentLang === 'zh-Hant' ? incorrect_feedback_zh : incorrect_feedback_en;
                         feedbackEl.className = 'feedback mt-4 text-sm font-semibold text-red-600 dark:text-red-400';
                     }
                     feedbackEl.classList.remove('hidden');
@@ -3439,21 +3480,11 @@ So all of this deserves careful thought.
             const playerContainer = document.getElementById('player');
             if (!scrollToPlayerBtn || !playerContainer) return;
 
-            const observer = new IntersectionObserver(entries => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        scrollToPlayerBtn.classList.add('opacity-0', 'hidden');
-                    } else {
-                        scrollToPlayerBtn.classList.remove('hidden');
-                        setTimeout(() => scrollToPlayerBtn.classList.remove('opacity-0'), 10); // for transition
-                    }
-                });
-            }, { rootMargin: "0px 0px 0px 0px", threshold: 0 });
-
-            observer.observe(playerContainer);
-
             scrollToPlayerBtn.addEventListener('click', () => {
                 playerContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                if (player && typeof player.pauseVideo === 'function') {
+                    player.pauseVideo();
+                }
             });
         }
 
@@ -3492,6 +3523,4 @@ So all of this deserves careful thought.
 
 </body>
 </html>
-
-
 
