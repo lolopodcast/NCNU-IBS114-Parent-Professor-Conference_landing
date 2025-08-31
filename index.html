@@ -1,584 +1,3497 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>NCNU IBS 2025 Freshman & Parents Interactive Page</title>
-  <!-- Tailwind (Play CDN) with Typography plugin for .prose -->
-  <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: { extend: {} }
-    }
-  </script>
-  <style>
-    /* Print-friendly footer */
-    @media print { a[href]::after { content: "" !important; } }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-lang-key="pageTitle">暨大國企系 大一新鮮人須知 親師座談與問答 (駱駱)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script> <!-- Placeholder for potential icons -->
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+        }
+        .dark body {
+            background-color: #111827;
+            color: #f3f4f6;
+        }
+        .section-title {
+            @apply text-2xl md:text-3xl font-bold mb-6 pb-2 border-b-4 border-amber-500 dark:border-amber-400;
+        }
+        .card {
+            @apply bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105;
+        }
+        .btn {
+            @apply px-4 py-2 rounded-lg font-semibold transition-colors duration-300;
+        }
+        .btn-primary {
+            @apply bg-amber-500 text-white hover:bg-amber-600 dark:bg-amber-400 dark:text-gray-900 dark:hover:bg-amber-300;
+        }
+        .btn-secondary {
+            @apply bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600;
+        }
+        .subtitle-item.active {
+            background-color: #fef3c7;
+        }
+        .dark .subtitle-item.active {
+            background-color: #4b5563;
+        }
+    </style>
 </head>
-<body class="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-100 via-white to-zinc-50 text-zinc-900">
-  <div id="root"></div>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
 
-  <!-- React 18 + ReactDOM (UMD) -->
-  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-  <!-- Babel Standalone to compile JSX in-browser (for quick demo / no-build) -->
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <!-- Lucide icons (vanilla) -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-
-  <script type="text/babel">
-    const { useMemo, useState, useEffect } = React;
-
-    // ------------------ CONFIG (Edit me) ------------------
-    const CONFIG = {
-      school: "National Chi Nan University (NCNU)",
-      dept: "Department of International Business Studies (IBS)",
-      mentor: "Prof. Shih‑Min Lo",
-      event: {
-        title: "Parent‑Teacher Conference",
-        date: "2025-08-24",
-        time: "10:00–12:00",
-        venue: "IBS Building, Rm. 201 (Tentative)",
-      },
-      links: {
-        ncnuPortal: "#",
-        ibsHomepage: "#",
-        moodle: "#",
-        library: "#",
-        counseling: "#",
-        dorm: "#",
-        campusMap: "#",
-        scholarships: "#",
-        emiPolicy: "#",
-        englishCenter: "#",
-        itHelpdesk: "#",
-      },
-      contacts: [
-        { label: "Academic Mentor", name: "Prof. Shih‑Min Lo", email: "", phone: "", note: "Office hours by appointment" },
-        { label: "IBS Office", name: "Program Assistants", email: "", phone: "", note: "Admin inquiries & documents" },
-      ],
-      keyDates: [
-        { date: "2025-08-24", name: "Parent‑Teacher Conference", type: "event" },
-        { date: "2025-09-09", name: "Classes Begin (Fall)", type: "academic" },
-        { date: "2025-09-09", name: "Add/Drop Opens", type: "academic" },
-        { date: "2025-09-23", name: "Add/Drop Closes", type: "deadline" },
-        { date: "2025-10-27", name: "Midterms Week (TBC)", type: "exam" },
-        { date: "2025-12-15", name: "Finals Week (TBC)", type: "exam" },
-      ],
-    };
-
-    // ------------------ I18N (Chinese / English) ------------------
-    const i18n = {
-      zh: {
-        langName: "繁體中文",
-        title: "暨大國企系 2025 新生與家長互動頁",
-        subtitle: `${CONFIG.school}｜${CONFIG.dept}`,
-        heroLead: "親師座談重點提醒與大一新生指南",
-        ctas: { rsvp: "簽到 / 意見回饋", start: "開始導覽", print: "列印 / 儲存成 PDF", downloadICS: "加入行事曆(.ics)" },
-        notice: "本頁為示範範本，可直接使用或依系上需求調整文字、日期與連結。",
-        tabs: { students: "給新生", parents: "給家長", faq: "常見問題", resources: "資源連結" },
-        blocks: {
-          welcome: {
-            title: "歡迎加入暨大國企系！",
-            body: `在IBS，我們強調\n1) EMI（全英授課/部分英授）\n2) 問題導向學習（PBL）\n3) 自主學習（SDL）。\n請善用學校資源，逐步培養時間管理、團隊合作與跨文化溝通能力。`,
-            chips: ["EMI", "PBL", "SDL", "學習社群", "國際視野"],
-          },
-          studentChecklist: {
-            title: "新生開學前後待辦清單",
-            intro: "勾選完成項目，可按「重設」重新開始。",
-            items: [
-              "完成校務資訊入口註冊與校園郵件設定",
-              "確認選課規則：必修 / 選修 / 英語/第二外語",
-              "熟悉EMI與課堂規範：出席、合作、學術誠信",
-              "加入導師群組，完成學習需求/生涯規劃問卷",
-              "了解圖書館、英文輔導中心、學習資源與諮商",
-              "關注加退選與各項申請的截止日期",
-            ],
-            reset: "重設清單",
-          },
-          parentsGuide: {
-            title: "給家長：如何支持孩子的大一適應",
-            bullets: [
-              "鼓勵獨立自主管理時間與課業，建立對話而非接管。",
-              "一起了解EMI：讓孩子在課堂內外增加英語使用頻率。",
-              "關注身心健康與睡眠作息，必要時善用校內諮商資源。",
-              "以成果為導向的關心：詢問學習目標、方法與反思。",
-              "鼓勵參與社團/系學會/國際交流，培養人際與領導力。",
-            ],
-            tip: "家長與師長是同一隊：多鼓勵、多傾聽，共同守護孩子的學習動機。",
-          },
-          emiPblSdl: {
-            title: "EMI、PBL、SDL 是什麼？",
-            rows: [
-              { k: "EMI（English‑Medium Instruction）", v: "課程內容以英語進行（全英/部分英），強化專業領域中的英語聽說讀寫能力。" },
-              { k: "PBL（Problem‑Based Learning）", v: "以真實情境/企業個案為核心，透過分組合作解題，培養分析與創新能力。" },
-              { k: "SDL（Self‑Directed Learning）", v: "自訂學習目標與策略，主動尋找資源，建立長期學習習慣。" },
-            ],
-          },
-          keyDates: {
-            title: "重要時程",
-            hint: "實際日期以校方公告為準，請隨時留意系辦通知。",
-          },
-          faq: {
-            title: "常見問題",
-            list: [
-              { q: "英語不夠流利怎麼辦？", a: "請善用英語中心與同儕學習，課堂重視參與與進步，不以口音評分。" },
-              { q: "可以打工或參加社團嗎？", a: "建議以學業為優先，妥善安排時間，選擇具學習價值的活動。" },
-              { q: "課堂出缺席如何計算？", a: "依教師與課程規範，請務必準時並遵守學術誠信。" },
-              { q: "學術誠信包含哪些？", a: "不得抄襲與代寫，報告需標註來源；小組合作需明確分工與紀錄。" },
-              { q: "遇到壓力怎麼調適？", a: "可與導師或諮商中心聯繫，建立運動與睡眠習慣，尋求同儕支持。" },
-            ],
-          },
-          resources: {
-            title: "資源連結",
-            list: [
-              { label: "NCNU 校務入口", href: CONFIG.links.ncnuPortal },
-              { label: "IBS 系網", href: CONFIG.links.ibsHomepage },
-              { label: "Moodle / e‑Learning", href: CONFIG.links.moodle },
-              { label: "圖書館", href: CONFIG.links.library },
-              { label: "學生輔導與諮商", href: CONFIG.links.counseling },
-              { label: "宿舍與生活資訊", href: CONFIG.links.dorm },
-              { label: "校園地圖", href: CONFIG.links.campusMap },
-              { label: "獎助學金", href: CONFIG.links.scholarships },
-              { label: "EMI 政策與資源", href: CONFIG.links.emiPolicy },
-              { label: "英文寫作與口語輔導", href: CONFIG.links.englishCenter },
-              { label: "IT 帳號與技術支援", href: CONFIG.links.itHelpdesk },
-            ],
-          },
-          feedback: {
-            title: "簽到 / 意見回饋",
-            name: "姓名",
-            role: "身分",
-            roles: ["新生", "家長", "其他"],
-            msg: "留言（可選）",
-            submit: "送出",
-            thanks: "感謝您的回饋！",
-          },
-          footer: {
-            disclaimer: "本頁資訊僅供參考，若有出入以學校公告為準。",
-            contact: "聯絡方式",
-          },
-        },
-      },
-      en: {
-        langName: "English",
-        title: "NCNU IBS 2025 Freshman & Parents Interactive Page",
-        subtitle: `${CONFIG.school} | ${CONFIG.dept}`,
-        heroLead: "Key reminders & First‑Year Guide for Freshmen and Parents",
-        ctas: { rsvp: "RSVP / Feedback", start: "Start Tour", print: "Print / Save as PDF", downloadICS: "Add to Calendar (.ics)" },
-        notice: "This is a ready‑to‑use template. Feel free to customize text, dates, and links.",
-        tabs: { students: "For Students", parents: "For Parents", faq: "FAQ", resources: "Resources" },
-        blocks: {
-          welcome: {
-            title: "Welcome to IBS!",
-            body: `At IBS, we emphasize\n1) EMI (English‑Medium Instruction)\n2) PBL (Problem‑Based Learning)\n3) SDL (Self‑Directed Learning).\nLeverage campus resources and build time management, teamwork, and cross‑cultural communication skills.`,
-            chips: ["EMI", "PBL", "SDL", "Learning Communities", "Global Mindset"],
-          },
-          studentChecklist: {
-            title: "Pre‑ & Early‑Semester Checklist",
-            intro: "Tick items as you complete them. Use Reset to start over.",
-            items: [
-              "Activate portal account and set up student email",
-              "Review curriculum rules: Required/Electives, English/2nd language",
-              "Understand EMI & class rules: attendance, teamwork, academic integrity",
-              "Join mentor group; complete learning needs/career survey",
-              "Explore Library, English Center, learning support & counseling",
-              "Track add/drop and application deadlines",
-            ],
-            reset: "Reset Checklist",
-          },
-          parentsGuide: {
-            title: "Parent Tips: Supporting First‑Year Transition",
-            bullets: [
-              "Encourage independent time & study management—coach, don’t commandeer.",
-              "Understand EMI; help increase authentic English use inside/outside class.",
-              "Watch sleep and well‑being; suggest Counseling Center when needed.",
-              "Focus on outcomes: ask about goals, methods, and reflections.",
-              "Promote clubs, student union, and exchanges to build leadership & networks.",
-            ],
-            tip: "Faculty and families are one team—encourage and listen to protect motivation.",
-          },
-          emiPblSdl: {
-            title: "What are EMI, PBL, and SDL?",
-            rows: [
-              { k: "EMI (English‑Medium Instruction)", v: "Courses delivered fully/partly in English to strengthen domain‑specific language skills." },
-              { k: "PBL (Problem‑Based Learning)", v: "Real contexts/case work in teams to build analysis and innovation." },
-              { k: "SDL (Self‑Directed Learning)", v: "Students set goals/strategies, seek resources, and form lifelong habits." },
-            ],
-          },
-          keyDates: {
-            title: "Key Dates",
-            hint: "Always follow official announcements for the latest dates.",
-          },
-          faq: {
-            title: "Frequently Asked Questions",
-            list: [
-              { q: "What if my English isn’t fluent?", a: "Use the English Center and peer practice; classes value participation and progress over accent." },
-              { q: "Can I work part‑time or join clubs?", a: "Prioritize academics; choose activities with learning value and manage time carefully." },
-              { q: "How is attendance handled?", a: "Follow each course’s rules; be punctual and uphold academic integrity." },
-              { q: "What is academic integrity?", a: "No plagiarism/ghostwriting; cite sources; document fair group contribution." },
-              { q: "How do I cope with stress?", a: "Talk to your mentor or Counseling Center; keep good sleep and exercise habits; lean on peers." },
-            ],
-          },
-          resources: {
-            title: "Useful Links",
-            list: [
-              { label: "NCNU Portal", href: CONFIG.links.ncnuPortal },
-              { label: "IBS Website", href: CONFIG.links.ibsHomepage },
-              { label: "Moodle / e‑Learning", href: CONFIG.links.moodle },
-              { label: "Library", href: CONFIG.links.library },
-              { label: "Counseling & Guidance", href: CONFIG.links.counseling },
-              { label: "Dorm & Campus Life", href: CONFIG.links.dorm },
-              { label: "Campus Map", href: CONFIG.links.campusMap },
-              { label: "Scholarships & Aid", href: CONFIG.links.scholarships },
-              { label: "EMI Policy & Resources", href: CONFIG.links.emiPolicy },
-              { label: "English Support Center", href: CONFIG.links.englishCenter },
-              { label: "IT Helpdesk / Accounts", href: CONFIG.links.itHelpdesk },
-            ],
-          },
-          feedback: {
-            title: "RSVP / Feedback",
-            name: "Name",
-            role: "Role",
-            roles: ["Freshman", "Parent", "Other"],
-            msg: "Message (optional)",
-            submit: "Submit",
-            thanks: "Thanks for your feedback!",
-          },
-          footer: {
-            disclaimer: "Information is indicative; official announcements prevail.",
-            contact: "Contacts",
-          },
-        },
-      },
-    };
-
-    // ------------------ Helpers ------------------
-    const fmtDate = (d) => new Date(d + "T00:00:00").toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
-
-    const Icon = ({ name, className = "w-5 h-5" }) => (
-      <i data-lucide={name} className={className}></i>
-    );
-
-    const Section = ({ icon, title, children, className = "" }) => (
-      <section className={`bg-white/80 dark:bg-zinc-900/70 backdrop-blur rounded-2xl shadow-sm border border-zinc-200/60 dark:border-zinc-800 p-6 ${className}`}>
-        <div className="flex items-center gap-3 mb-3">
-          {icon && <Icon name={icon} />}
-          <h2 className="text-xl font-semibold">{title}</h2>
-        </div>
-        <div className="prose prose-zinc max-w-none text-sm leading-relaxed">{children}</div>
-      </section>
-    );
-
-    const Pill = ({ children }) => (
-      <span className="px-2 py-1 rounded-full bg-zinc-100 text-xs mr-2 mb-2 inline-flex items-center gap-1"><Icon name="globe" className="w-4 h-4" />{children}</span>
-    );
-
-    const Toggle = ({ value, onChange, labels }) => (
-      <div className="inline-flex items-center rounded-full border border-zinc-300 p-1 bg-white">
-        {["zh", "en"].map((lang) => (
-          <button
-            key={lang}
-            onClick={() => onChange(lang)}
-            className={`px-3 py-1 text-sm rounded-full transition ${value === lang ? "bg-zinc-900 text-white" : "text-zinc-600"}`}
-          >
-            {labels[lang]}
-          </button>
-        ))}
-      </div>
-    );
-
-    const Accordion = ({ items }) => {
-      const [open, setOpen] = useState(null);
-      return (
-        <div className="divide-y divide-zinc-200">
-          {items.map((it, idx) => (
-            <div key={idx}>
-              <button onClick={() => setOpen(open === idx ? null : idx)} className="w-full flex items-center justify-between py-3 text-left">
-                <span className="font-medium">{it.q}</span>
-                <Icon name="chevron-down" className={`w-4 h-4 transition ${open === idx ? "rotate-180" : ""}`} />
-              </button>
-              {open === idx && (<div className="pb-4 text-sm text-zinc-700">{it.a}</div>)}
-            </div>
-          ))}
-        </div>
-      );
-    };
-
-    const Checklist = ({ title, intro, items, resetLabel }) => {
-      const [state, setState] = useState(items.map(() => false));
-      const percent = Math.round((state.filter(Boolean).length / items.length) * 100);
-      return (
-        <Section icon="clipboard-list" title={title}>
-          <p className="mb-3">{intro}</p>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="h-2 bg-zinc-200 rounded w-full overflow-hidden">
-              <div className="h-full bg-zinc-900" style={{ width: `${percent}%` }} />
-            </div>
-            <span className="text-xs tabular-nums w-10 text-right">{percent}%</span>
-            <button onClick={() => setState(items.map(() => false))} className="text-xs underline">{resetLabel}</button>
-          </div>
-          <ul className="space-y-2">
-            {items.map((text, i) => (
-              <li key={i} className="flex items-start gap-3">
-                <input type="checkbox" checked={state[i]} onChange={(e) => setState((s) => s.map((v, idx) => (idx === i ? e.target.checked : v)))} className="mt-1 w-4 h-4" />
-                <span className={`${state[i] ? "line-through opacity-60" : ""}`}>{text}</span>
-              </li>
-            ))}
-          </ul>
-        </Section>
-      );
-    };
-
-    const KeyDates = ({ title, hint, items }) => {
-      const color = (t) => ({ event: "bg-amber-100", academic: "bg-emerald-100", deadline: "bg-rose-100", exam: "bg-indigo-100" }[t] || "bg-zinc-100");
-      return (
-        <Section icon="calendar-days" title={title}>
-          <p className="text-xs -mt-1 mb-3 opacity-75">{hint}</p>
-          <ol className="space-y-3">
-            {items.map((d, i) => (
-              <li key={i} className="flex items-start gap-4">
-                <div className={`mt-1 w-2 h-2 rounded-full ${d.type === "deadline" ? "bg-rose-500" : d.type === "exam" ? "bg-indigo-500" : d.type === "academic" ? "bg-emerald-500" : "bg-amber-500"}`} />
-                <div className="flex-1">
-                  <div className="text-sm font-medium">{fmtDate(d.date)} · {d.name}</div>
-                  <div className={`inline-block mt-1 text-[10px] px-2 py-1 rounded ${color(d.type)}`}>{d.type}</div>
+    <!-- I. 頁頭標題與說明 -->
+    <header class="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex-1 min-w-0">
+                    <h1 class="text-xl sm:text-2xl font-bold text-amber-600 dark:text-amber-400 truncate" data-lang-key="headerTitle">暨大國企系 大一新鮮人須知 親師座談與問答 (駱駱)</h1>
                 </div>
-              </li>
-            ))}
-          </ol>
-        </Section>
-      );
-    };
-
-    const Resources = ({ title, list }) => (
-      <Section icon="book-open" title={title}>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {list.map((r, i) => (
-            <a key={i} href={r.href} target="_blank" rel="noreferrer" className="group border border-zinc-200 rounded-xl p-4 hover:shadow-sm transition bg-white">
-              <div className="flex items-center justify-between">
-                <div className="font-medium">{r.label}</div>
-                <Icon name="external-link" className="w-4 h-4 opacity-60" />
-              </div>
-            </a>
-          ))}
+                <div class="flex items-center space-x-2 sm:space-x-4">
+                    <!-- Theme Toggle -->
+                    <button id="theme-toggle" class="btn btn-secondary !px-3">
+                        <svg id="theme-icon-light" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.707.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 14.95a1 1 0 001.414 1.414l.707-.707a1 1 0 10-1.414-1.414l-.707.707zM5 11a1 1 0 100-2H4a1 1 0 100 2h1z"></path></svg>
+                        <svg id="theme-icon-dark" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                    </button>
+                    <!-- Language Toggle -->
+                    <button id="lang-toggle" class="btn btn-secondary" data-lang-key="langToggle">English</button>
+                </div>
+            </div>
+            <div class="py-4 border-t border-gray-200 dark:border-gray-700">
+                 <div class="text-sm space-y-2">
+                    <p class="text-gray-700 dark:text-gray-300">
+                        <a href="https://www.ncnu.edu.tw/" target="_blank" class="font-bold hover:text-amber-500" data-lang-key="ncnu">國立暨南國際大學 (National Chi Nan University, NCNU)</a> | 
+                        <a href="https://www.ibs.ncnu.edu.tw/" target="_blank" class="font-bold hover:text-amber-500" data-lang-key="ibs">國際企業學系 (Department of International Business Studies, IBS)</a> |
+                        <a href="https://www.ibs.ncnu.edu.tw/index.php/faculty/tenured-professor/299-smlo" target="_blank" class="font-bold hover:text-amber-500" data-lang-key="profLo">駱世民教授 (Prof. Shihmin Lo)</a>
+                    </p>
+                </div>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-300" data-lang-key="headerDesc">身為今年(2025)秋天入學大一學生的導師(academic mentor), 在2025/08/24對暨大(NCNU)國企系(IBS)大一新生與家長們, 所舉辦的親師座談(Parent-Professor Conference)中, 對學生與家長們提出大一新生剛進入暨大與國企系的重要提醒與相關問答解說。</p>
+            </div>
         </div>
-      </Section>
-    );
+    </header>
 
-    const FeedbackForm = ({ t }) => {
-      const [submitted, setSubmitted] = useState(false);
-      const [form, setForm] = useState({ name: "", role: t.roles[0], msg: "" });
-      return (
-        <Section icon="message-square" title={t.title}>
-          {submitted ? (
-            <div className="flex items-center gap-2 text-emerald-600"><Icon name="check-circle-2" className="w-5 h-5" />{t.thanks}</div>
-          ) : (
-            <form onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }} className="grid sm:grid-cols-2 gap-3">
-              <label className="text-sm">
-                <span className="block mb-1">{t.name}</span>
-                <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full border border-zinc-300 rounded-lg px-3 py-2 bg-white" placeholder="" />
-              </label>
-              <label className="text-sm">
-                <span className="block mb-1">{t.role}</span>
-                <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} className="w-full border border-zinc-300 rounded-lg px-3 py-2 bg-white">
-                  {t.roles.map((r) => <option key={r}>{r}</option>)}
-                </select>
-              </label>
-              <label className="text-sm sm:col-span-2">
-                <span className="block mb-1">{t.msg}</span>
-                <textarea value={form.msg} onChange={(e) => setForm({ ...form, msg: e.target.value })} rows={4} className="w-full border border-zinc-300 rounded-lg px-3 py-2 bg-white" />
-              </label>
-              <div className="sm:col-span-2">
-                <button className="px-4 py-2 rounded-xl bg-zinc-900 text-white">
-                  {t.submit}
+    <main class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <!-- YouTube Player -->
+        <div class="mb-8 aspect-w-16 aspect-h-9">
+            <div id="player" class="rounded-xl shadow-2xl overflow-hidden"></div>
+        </div>
+
+        <!-- II. 影片重點摘要區 -->
+        <section id="highlights" class="mb-12">
+            <h2 class="section-title" data-lang-key="highlightsTitle">影片重點摘要</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="card p-6">
+                    <h3 class="font-bold text-lg mb-2" data-lang-key="hl_1_title">1. 生活適應與規劃</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 mb-4" data-lang-key="hl_1_desc">住宿準備、室友相處、返鄉交通規劃及機車安全提醒。</p>
+                    <button class="btn btn-primary w-full seek-video" data-time="16" data-lang-key="watchNow">觀看片段</button>
+                </div>
+                <div class="card p-6">
+                    <h3 class="font-bold text-lg mb-2" data-lang-key="hl_2_title">2. 國際化校園環境</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 mb-4" data-lang-key="hl_2_desc">與多國籍僑生交朋友，把握雙語校園環境與EMI全英授課機會。</p>
+                    <button class="btn btn-primary w-full seek-video" data-time="117" data-lang-key="watchNow">觀看片段</button>
+                </div>
+                <div class="card p-6">
+                    <h3 class="font-bold text-lg mb-2" data-lang-key="hl_3_title">3. 學習態度與投入</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 mb-4" data-lang-key="hl_3_desc">大一必選修規劃，學習心態調整，以及學分與學習時間的投入建議。</p>
+                    <button class="btn btn-primary w-full seek-video" data-time="386" data-lang-key="watchNow">觀看片段</button>
+                </div>
+                <div class="card p-6">
+                    <h3 class="font-bold text-lg mb-2" data-lang-key="hl_4_title">4. 多元課程探索</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 mb-4" data-lang-key="hl_4_desc">通識課、國企系三大次領域、學分學程、輔系與雙主修的選擇與規劃。</p>
+                    <button class="btn btn-primary w-full seek-video" data-time="478" data-lang-key="watchNow">觀看片段</button>
+                </div>
+                <div class="card p-6">
+                    <h3 class="font-bold text-lg mb-2" data-lang-key="hl_5_title">5. 職涯探索與準備</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 mb-4" data-lang-key="hl_5_desc">企業實習的重要性，建議從大一升大二暑假開始，提早探索未來產業方向。</p>
+                    <button class="btn btn-primary w-full seek-video" data-time="966" data-lang-key="watchNow">觀看片段</button>
+                </div>
+                <div class="card p-6">
+                    <h3 class="font-bold text-lg mb-2" data-lang-key="hl_6_title">6. 尋求協助的管道</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 mb-4" data-lang-key="hl_6_desc">學長姐是最直接的建議來源，遇到問題時也可以主動尋求導師協助。</p>
+                    <button class="btn btn-primary w-full seek-video" data-time="70" data-lang-key="watchNow">觀看片段</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- III. 互動問答區 -->
+        <section id="quiz" class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="section-title !mb-0" data-lang-key="quizTitle">小測驗：看看您懂了多少？</h2>
+                <button id="retake-quiz-btn" class="btn btn-secondary" data-lang-key="retakeQuiz">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block -mt-1 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 110 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm10 8a1 1 0 011-1v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 011.885-.666A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-2.566-11.601 1 1 0 11.666 1.885A5.002 5.002 0 0015 13z" clip-rule="evenodd" />
+                    </svg>
+                    再試一次
                 </button>
-              </div>
-            </form>
-          )}
-        </Section>
-      );
-    };
-
-    const ContactCard = ({ t }) => {
-      const title = t?.contact || "Contacts";
-      return (
-        <Section icon="users" title={title}>
-          <div className="grid sm:grid-cols-2 gap-3">
-            {CONFIG.contacts.map((c, i) => (
-              <div key={i} className="border border-zinc-200 rounded-xl p-4 bg-white">
-                <div className="text-sm text-zinc-500">{c.label}</div>
-                <div className="font-medium text-lg">{c.name}</div>
-                {c.note && <div className="text-xs opacity-80 mt-1">{c.note}</div>}
-                <div className="flex flex-col gap-1 mt-3 text-sm">
-                  {c.email ? (
-                    <a className="inline-flex items-center gap-2 hover:underline" href={`mailto:${c.email}`}><Icon name="mail" className="w-4 h-4" />{c.email}</a>
-                  ) : (
-                    <div className="inline-flex items-center gap-2 opacity-60"><Icon name="mail" className="w-4 h-4" /><em>email</em></div>
-                  )}
-                  {c.phone ? (
-                    <a className="inline-flex items-center gap-2 hover:underline" href={`tel:${c.phone}`}><Icon name="phone" className="w-4 h-4" />{c.phone}</a>
-                  ) : (
-                    <div className="inline-flex items-center gap-2 opacity-60"><Icon name="phone" className="w-4 h-4" /><em>phone</em></div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </Section>
-      );
-    };
-
-    const Hero = ({ lang, setLang }) => {
-      const onPrint = () => window.print();
-      const downloadICS = () => {
-        const { date, time, venue } = CONFIG.event;
-        const pad = (n) => String(n).padStart(2, "0");
-        const [hh, mm] = (time || "10:00").split("–")[0].split(":");
-        const start = new Date(date + "T" + `${pad(hh)}:${pad(mm)}:00`);
-        const end = new Date(start.getTime() + 60 * 60 * 1000);
-        const dt = (d) => `${d.getUTCFullYear()}${pad(d.getUTCMonth()+1)}${pad(d.getUTCDate())}T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}00Z`;
-        const ics = [
-          "BEGIN:VCALENDAR",
-          "VERSION:2.0",
-          "PRODID:-//NCNU IBS//Freshman 2025//EN",
-          "BEGIN:VEVENT",
-          `UID:${Date.now()}@ncnu-ibs`,
-          `DTSTAMP:${dt(new Date())}`,
-          `DTSTART:${dt(start)}`,
-          `DTEND:${dt(end)}`,
-          `SUMMARY:${CONFIG.dept} ${CONFIG.event.title}`,
-          `LOCATION:${venue}`,
-          "END:VEVENT",
-          "END:VCALENDAR",
-        ].join("\n");
-        const blob = new Blob([ics], { type: "text/calendar" });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "ncnu-ibs-parent-teacher-2025.ics";
-        a.click();
-      };
-
-      const t = i18n[lang] || i18n.en;
-
-      return (
-        <div className="relative rounded-3xl overflow-hidden border border-zinc-200 bg-gradient-to-br from-zinc-50 to-white p-6 sm:p-8">
-          <div className="flex flex-col lg:flex-row lg:items-end gap-6">
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-3">
-                <Icon name="graduation-cap" className="w-6 h-6" />
-                <div className="text-sm opacity-75">{t.subtitle}</div>
-              </div>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t.title}</h1>
-              <p className="mt-2 text-zinc-600 text-sm leading-relaxed">{t.heroLead}</p>
-              <div className="mt-4 flex flex-wrap items-center gap-2">
-                <Pill>2025/08/24</Pill>
-                <Pill>{CONFIG.event.venue}</Pill>
-                <Pill>IBS · NCNU</Pill>
-              </div>
-              <div className="mt-5 flex flex-wrap items-center gap-3">
-                <button className="px-4 py-2 rounded-xl bg-zinc-900 text-white inline-flex items-center gap-2"><Icon name="message-square" className="w-4 h-4" />{t.ctas.rsvp}</button>
-                <a href="#start" className="px-4 py-2 rounded-xl border inline-flex items-center gap-2"><Icon name="flag" className="w-4 h-4" />{t.ctas.start}</a>
-                <button onClick={onPrint} className="px-4 py-2 rounded-xl border inline-flex items-center gap-2"><Icon name="printer" className="w-4 h-4" />{t.ctas.print}</button>
-                <button onClick={downloadICS} className="px-4 py-2 rounded-xl border inline-flex items-center gap-2"><Icon name="download" className="w-4 h-4" />{t.ctas.downloadICS}</button>
-              </div>
             </div>
-            <div className="flex items-end justify-between lg:flex-col lg:items-end gap-3 min-w-[260px]">
-              <div className="text-xs px-3 py-2 rounded-full bg-amber-50 border border-amber-200 inline-flex items-center gap-2 text-amber-800">
-                <Icon name="info" className="w-4 h-4" />
-                <span>{t.notice}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Icon name="languages" className="w-4 h-4 opacity-70" />
-                <Toggle value={lang} onChange={setLang} labels={{ zh: i18n.zh.langName, en: i18n.en.langName }} />
-              </div>
+            <div id="quiz-container" class="space-y-8">
+                <!-- Quiz questions will be dynamically inserted here -->
             </div>
-          </div>
-        </div>
-      );
-    };
-
-    const App = () => {
-      const [lang, setLang] = useState('zh');
-      const t = (i18n[lang] || i18n.en);
-      const keyDatesSorted = useMemo(() => CONFIG.keyDates.slice().sort((a, b) => (a.date.localeCompare(b.date))), []);
-
-      // Ensure lucide icons render after each update
-      useEffect(() => { if (window.lucide) window.lucide.createIcons(); });
-
-      return (
-        <div className="max-w-6xl mx-auto px-4 py-8">
-          <Hero lang={lang} setLang={setLang} />
-          <div id="start" className="grid lg:grid-cols-3 gap-6 mt-8">
-            <div className="lg:col-span-2 space-y-6">
-              <Section icon="globe" title={t.blocks.welcome.title}>
-                <p className="whitespace-pre-line">{t.blocks.welcome.body}</p>
-                <div className="mt-3 flex flex-wrap">{t.blocks.welcome.chips.map((c) => <Pill key={c}>{c}</Pill>)}</div>
-              </Section>
-
-              <div className="rounded-2xl border border-zinc-200 overflow-hidden">
-                <div className="flex text-sm">
-                  <a href="#tab-students" className="flex-1 p-3 text-center bg-zinc-50 hover:underline">{t.tabs.students}</a>
-                  <a href="#tab-parents" className="flex-1 p-3 text-center bg-zinc-50 hover:underline">{t.tabs.parents}</a>
-                </div>
-                <div className="p-6 grid md:grid-cols-2 gap-6">
-                  <Checklist
-                    title={t.blocks.studentChecklist.title}
-                    intro={t.blocks.studentChecklist.intro}
-                    items={t.blocks.studentChecklist.items}
-                    resetLabel={t.blocks.studentChecklist.reset}
-                  />
-
-                  <Section icon="users" title={t.blocks.parentsGuide.title}>
-                    <ul className="list-disc pl-5 space-y-2">
-                      {t.blocks.parentsGuide.bullets.map((b, i) => (<li key={i}>{b}</li>))}
-                    </ul>
-                    <div className="mt-3 text-xs opacity-80">{t.blocks.parentsGuide.tip}</div>
-                  </Section>
-                </div>
-              </div>
-
-              <Section icon="book-open" title={t.blocks.emiPblSdl.title}>
-                <dl className="grid sm:grid-cols-2 gap-3">
-                  {t.blocks.emiPblSdl.rows.map((r, i) => (
-                    <div key={i} className="p-4 rounded-xl bg-zinc-50 border border-zinc-200">
-                      <dt className="font-medium mb-1">{r.k}</dt>
-                      <dd className="text-sm opacity-90">{r.v}</dd>
+        </section>
+        
+        <!-- IV. 自主學習區 -->
+        <section id="self-learning" class="mb-12">
+            <h2 class="section-title" data-lang-key="learningTitle">自主學習加油站</h2>
+            <div class="space-y-4">
+                <div class="learning-item border dark:border-gray-700 rounded-lg">
+                    <button class="w-full text-left p-4 font-bold text-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-t-lg" data-lang-key="pbl_title">問題導向學習 (Problem-Based Learning, PBL)</button>
+                    <div class="p-4 hidden text-gray-600 dark:text-gray-300">
+                        <p data-lang-key="pbl_desc">PBL是一種以學生為中心的教學法，學習始於一個複雜、真實且有意義的問題。學生以小組合作方式，自主探討、研究並尋找解決方案。這個過程不僅學習到學科知識，更培養了批判性思維、解決問題、協作和溝通等關鍵能力。</p>
                     </div>
-                  ))}
-                </dl>
-              </Section>
-
-              <Section icon="message-square" title={t.blocks.faq.title}>
-                <Accordion items={t.blocks.faq.list} />
-              </Section>
-
-              <FeedbackForm t={t.blocks.feedback} />
+                </div>
+                 <div class="learning-item border dark:border-gray-700 rounded-lg">
+                    <button class="w-full text-left p-4 font-bold text-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-t-lg" data-lang-key="pjbl_title">專題導向學習 (Project-Based Learning, PjBL)</button>
+                    <div class="p-4 hidden text-gray-600 dark:text-gray-300">
+                        <p data-lang-key="pjbl_desc">與PBL相似，PjBL讓學生透過長時間投入一個真實且複雜的專題、問題或挑戰來深度學習。最終，學生會產出一個公開的產品或發表。此方法強調應用知識、跨學科整合與創新，並培養專案管理與實踐能力。</p>
+                    </div>
+                </div>
+                <div class="learning-item border dark:border-gray-700 rounded-lg">
+                    <button class="w-full text-left p-4 font-bold text-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-t-lg" data-lang-key="sdl_title">自主學習 (Self-Directed Learning, SDL)</button>
+                    <div class="p-4 hidden text-gray-600 dark:text-gray-300">
+                        <p data-lang-key="sdl_desc">SDL是指個體主動發起學習需求，設定學習目標，尋找資源，選擇並執行適當的學習策略，並評估學習成果的過程。這是大學學習的核心，也是終身學習的基礎。影片中提到的線上課程(MOOCs)、自主學習學分等都是實踐SDL的方式。</p>
+                    </div>
+                </div>
+                <div class="learning-item border dark:border-gray-700 rounded-lg">
+                    <button class="w-full text-left p-4 font-bold text-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-t-lg" data-lang-key="cl_title">小組協同學習 (Collaborative Learning)</button>
+                    <div class="p-4 hidden text-gray-600 dark:text-gray-300">
+                        <p data-lang-key="cl_desc">這是一種教學安排，讓學生在小組中共同努力以完成特定任務或達成學習目標。成員們彼此依賴、互相負責，透過討論、分享與互助，共同建構知識。這不僅能深化學習，更能提升人際互動與團隊合作的技巧。</p>
+                    </div>
+                </div>
             </div>
+        </section>
 
-            <div className="space-y-6">
-              <KeyDates title={t.blocks.keyDates.title} hint={t.blocks.keyDates.hint} items={keyDatesSorted} />
-              <Resources title={t.blocks.resources.title} list={t.blocks.resources.list} />
-              <ContactCard t={t.blocks.footer} />
+        <!-- V. 影片字幕區 -->
+        <section id="subtitles">
+            <h2 class="section-title" data-lang-key="subtitlesTitle">雙語字幕稿 (點擊可跳轉)</h2>
+            <div id="subtitle-container" class="h-96 overflow-y-auto border rounded-lg p-4 bg-white dark:bg-gray-800 dark:border-gray-700 space-y-2">
+                <!-- Subtitles will be loaded here -->
+                <p data-lang-key="loadingSubtitles">字幕載入中...</p>
             </div>
-          </div>
+        </section>
+    </main>
+    
+    <footer class="text-center py-6 mt-8 border-t dark:border-gray-700">
+        <p class="text-sm text-gray-500" data-lang-key="footer">NCNU IBS Freshman Guide. Interactive Webpage by Gemini.</p>
+    </footer>
 
-          <footer className="mt-10 pt-6 border-t border-zinc-200 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-2 opacity-80">
-              <Icon name="info" className="w-4 h-4" />
-              <span>{t.blocks?.footer?.disclaimer || (lang === 'zh' ? '本頁資訊僅供參考，若有出入以學校公告為準。' : 'Information is indicative; official announcements prevail.')}</span>
-            </div>
-            <div className="opacity-60">© 2025 {CONFIG.dept}, {CONFIG.school}. All rights reserved.</div>
-          </footer>
-        </div>
-      );
-    };
+    <!-- Scroll to Player Button -->
+    <button id="scroll-to-player-btn" data-lang-key="scrollToPlayer" data-lang-attr="title" title="回到播放器" class="hidden fixed bottom-6 right-6 btn btn-primary !p-3 rounded-full shadow-lg z-50 transition-opacity duration-300">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        </svg>
+    </button>
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
-    // First render icons
-    if (window.lucide) window.lucide.createIcons();
-  </script>
+    <script>
+        // --- DATA ---
+        const srtContent = `
+1
+00:00:00,000 --> 00:00:02,800
+在座的家長 還有新生們
+Parents and freshmen here today,
+
+2
+00:00:02,800 --> 00:00:04,800
+大家午安 我是駱世民 (Prof. Shihmin Lo)
+Good afternoon. I'm Prof. Shih‑Min Lo.
+
+3
+00:00:04,800 --> 00:00:06,800
+我自己的小孩 現在在念大三
+My own twins are currently junior students.
+
+4
+00:00:06,800 --> 00:00:10,000
+所以大概 一個新生進來 一個新的環境
+So when a freshman enters a new environment,
+
+5
+00:00:10,000 --> 00:00:14,200
+我覺得 認識這個校園環境 是第一件事情
+I think getting to know the campus is the very first thing.
+
+6
+00:00:14,200 --> 00:00:16,800
+所以 包含你的 食衣住行育樂
+That includes your day‑to‑day: food, clothing, housing, transportation, learning, and leisure.
+
+7
+00:00:16,800 --> 00:00:18,800
+如果是 住宿舍的同學
+If you’re living in the dorms,
+
+8
+00:00:18,800 --> 00:00:20,800
+可能他首先要 先適應
+the first task is to adjust,
+
+9
+00:00:20,800 --> 00:00:23,400
+怎麼跟其他的室友 相處
+like how to get along with your roommates,
+
+10
+00:00:23,400 --> 00:00:26,800
+可能甚至是包含 怎麼洗衣服的這些事情
+even things like how to do laundry.
+
+11
+00:00:26,800 --> 00:00:29,200
+大概需要 有一點點規劃
+These all require a bit of planning.
+
+12
+00:00:29,400 --> 00:00:30,400
+至於怎麼規劃
+As for how to plan,
+
+13
+00:00:30,400 --> 00:00:34,400
+其實新生們 可以跟家長商量
+freshmen can discuss with their parents,
+
+14
+00:00:34,400 --> 00:00:36,400
+也可以 詢問你學長姐
+and also ask your senior classmates,
+
+15
+00:00:36,400 --> 00:00:38,400
+看他們都是 怎麼處理
+to see how they handle things.
+
+16
+00:00:38,400 --> 00:00:40,400
+尤其是 住宿舍的時候
+Especially when you live in the dorms,
+
+17
+00:00:40,400 --> 00:00:42,400
+有時候 有人會打呼
+sometimes someone snores,
+
+18
+00:00:42,400 --> 00:00:43,600
+有人很晚才睡
+someone stays up late,
+
+19
+00:00:43,600 --> 00:00:44,600
+有人不關燈
+someone leaves the lights on,
+
+20
+00:00:44,600 --> 00:00:45,800
+或者是有人怎麼樣
+or there are other habits.
+
+21
+00:00:45,800 --> 00:00:50,600
+這些東西 其實都是一個 18歲到22歲的年輕人
+These are exactly the kinds of issues young adults aged 18–22 face,
+
+22
+00:00:50,600 --> 00:00:52,400
+因為 18歲已經成年了
+because at 18 you’re legally an adult.
+
+23
+00:00:52,400 --> 00:00:53,400
+所以 "小孩子轉大人"
+It’s the moment of “turning from a kid into an adult,”
+
+24
+00:00:53,400 --> 00:00:56,800
+所以你開始 從一個家庭的羽翼
+when you start to move out from under
+
+25
+00:00:57,000 --> 00:00:58,000
+依附底下
+the shelter of the family,
+
+26
+00:00:58,000 --> 00:01:01,400
+慢慢成為一個 獨立自主的大人
+and gradually become independent.
+
+27
+00:01:01,400 --> 00:01:03,400
+所以 理論上這些事情
+So, in principle,
+
+28
+00:01:03,400 --> 00:01:05,800
+新生們 年輕人們
+freshmen—young people—
+
+29
+00:01:05,800 --> 00:01:07,399
+可以自己 嘗試去解決
+can try to solve these things on their own.
+
+30
+00:01:07,399 --> 00:01:10,200
+但是有時候 就是不要硬幹
+But don’t just tough it out,
+
+31
+00:01:10,200 --> 00:01:12,000
+有時候就是 稍微問一下
+sometimes just ask a little,
+
+32
+00:01:12,000 --> 00:01:13,000
+問一下學長姐
+ask your seniors;
+
+33
+00:01:13,000 --> 00:01:16,800
+我是覺得 這個是最直接 最方便
+I think that’s the most direct and convenient approach.
+
+34
+00:01:16,800 --> 00:01:19,600
+然後 譬如說 像我們現在開學
+For example, as the semester starts now,
+
+35
+00:01:19,600 --> 00:01:21,800
+馬上就會有 928連假
+there will immediately be the 9/28 long weekend,
+
+36
+00:01:21,800 --> 00:01:23,200
+有 中秋節連假
+the Mid‑Autumn Festival break,
+
+37
+00:01:23,200 --> 00:01:24,400
+有 雙十節連假
+and the Double Tenth Day break—
+
+38
+00:01:25,000 --> 00:01:27,000
+就是 連續好幾次
+several in a row.
+
+39
+00:01:27,000 --> 00:01:29,400
+所以包含 你怎麼去規劃
+So plan ahead for
+
+40
+00:01:29,400 --> 00:01:31,400
+你在這一個月當中
+what you’ll do in this month:
+
+41
+00:01:31,400 --> 00:01:33,800
+你是要留在學校 還是你要回家
+whether you’ll stay on campus or go home,
+
+42
+00:01:33,800 --> 00:01:35,400
+那你要怎麼回家
+and how you’ll get home.
+
+43
+00:01:35,400 --> 00:01:37,600
+比如說 你要不要提前訂票等等的
+For example, should you book tickets in advance, and so on.
+
+44
+00:01:37,600 --> 00:01:40,600
+這些都是 非常實務的問題
+These are all very practical matters.
+
+45
+00:01:40,600 --> 00:01:42,000
+剛開始 離開家
+At the very beginning of leaving home,
+
+46
+00:01:42,000 --> 00:01:43,000
+如果住在宿舍
+if you live in the dorms,
+
+47
+00:01:43,000 --> 00:01:44,200
+理論上大部分的學生
+in principle most students
+
+48
+00:01:44,200 --> 00:01:45,600
+大一都還是 住在宿舍
+still live in dorms in freshman year.
+
+49
+00:01:45,600 --> 00:01:47,200
+只有 少部分的人
+Only a small number of people
+
+50
+00:01:47,200 --> 00:01:48,600
+會想要住在鎮上
+will want to live in town.
+
+51
+00:01:48,600 --> 00:01:49,800
+在交通上面
+In terms of transportation,
+
+52
+00:01:49,800 --> 00:01:51,200
+你稍微提前規劃一下
+plan a little ahead;
+
+53
+00:01:51,200 --> 00:01:52,200
+我覺得 對各位
+I think that will help you
+
+54
+00:01:52,200 --> 00:01:54,000
+在剛開始進來的時候
+be less flustered
+
+55
+00:01:54,000 --> 00:01:56,000
+比較不會 手忙腳亂
+when you first arrive.
+
+56
+00:01:56,000 --> 00:01:58,000
+然後 第二部分是
+The second point is,
+
+57
+00:01:58,000 --> 00:02:01,000
+我們是 國立暨南國際大學(National Chi Nan University)
+we are National Chi Nan University (NCNU).
+
+58
+00:02:01,000 --> 00:02:02,000
+這個 國際 的意思是
+“International” here means
+
+59
+00:02:02,000 --> 00:02:04,000
+我們 其實就是
+that we are actually
+
+60
+00:02:04,000 --> 00:02:06,000
+這個 僑生主要的
+a principal host for overseas Chinese education.
+
+61
+00:02:06,000 --> 00:02:08,000
+僑教的主辦學校
+If you look at the proportion of overseas Chinese students,
+
+62
+00:02:08,000 --> 00:02:10,000
+如果以 僑生的比例 來看的話
+NCNU is probably among the top three nationwide.
+
+63
+00:02:10,000 --> 00:02:12,000
+暨大 應該是 全國排前三
+Previously, the figure
+
+64
+00:02:12,000 --> 00:02:14,000
+大概 以前的數字
+was around 12%—
+
+65
+00:02:14,000 --> 00:02:16,000
+好像有一個叫 12%
+meaning about 12% are overseas Chinese students.
+
+66
+00:02:16,000 --> 00:02:18,000
+也就是說 12%是僑生
+Most of them come from Southeast Asia,
+
+67
+00:02:18,000 --> 00:02:21,000
+僑生來自於 東南亞 的居多
+such as Indonesia,
+
+68
+00:02:21,000 --> 00:02:22,000
+所以可能 印尼
+Malaysia, Hong Kong, Vietnam, Myanmar, and Cambodia—
+
+69
+00:02:22,000 --> 00:02:26,000
+馬來西亞 香港 越南 緬甸 柬埔寨
+we currently have students from all these places.
+
+70
+00:02:26,000 --> 00:02:28,000
+我們目前都有
+There are also some
+
+71
+00:02:28,000 --> 00:02:29,000
+當然也有一些
+students from India,
+
+72
+00:02:29,000 --> 00:02:30,000
+譬如說 印度的學生
+and some with more Western faces,
+
+73
+00:02:30,000 --> 00:02:34,000
+或者是比較 西方臉孔的
+because we have many exchange students.
+
+74
+00:02:34,000 --> 00:02:36,000
+因為我們有 很多的交換(學生)
+So roughly every semester,
+
+75
+00:02:36,000 --> 00:02:38,000
+所以大概 每學期(國企系)
+the IBS department
+
+76
+00:02:38,000 --> 00:02:41,000
+都會有幾位 外國學生
+will have several international students.
+
+77
+00:02:41,000 --> 00:02:43,000
+所以我們會說 僑外生
+We therefore refer to them as overseas and international students.
+
+78
+00:02:43,000 --> 00:02:46,000
+僑生同學 其實相對而言
+These overseas Chinese classmates,
+
+79
+00:02:46,000 --> 00:02:47,000
+我覺得也是一個
+I think,
+
+80
+00:02:47,000 --> 00:02:50,000
+很適合同學們 交朋友 的一個對象
+are also great people for you to befriend.
+
+81
+00:02:50,000 --> 00:02:52,000
+當然不見得他
+Of course, they don’t
+
+82
+00:02:52,000 --> 00:02:54,000
+一定要跟你 講英文
+have to speak English with you,
+
+83
+00:02:54,000 --> 00:02:56,000
+或者是他 會不會講中文
+nor do they necessarily speak Chinese—
+
+84
+00:02:56,000 --> 00:02:57,000
+我覺得這個東西就是
+that’s something
+
+85
+00:02:57,000 --> 00:02:58,000
+自己就可以設定
+you can set for yourselves.
+
+86
+00:02:58,000 --> 00:03:00,000
+我們就是在一個 相對比較
+We’re on a campus with a relatively
+
+87
+00:03:00,000 --> 00:03:03,000
+國際化比例高 的校園裡面
+high degree of internationalization,
+
+88
+00:03:03,000 --> 00:03:07,000
+所以 大家都可以 積極的
+so everyone can proactively
+
+89
+00:03:07,000 --> 00:03:08,000
+可以 互相交朋友
+make friends with one another.
+
+90
+00:03:08,000 --> 00:03:10,000
+所以我覺得 僑生這個部分
+As for overseas Chinese students,
+
+91
+00:03:10,000 --> 00:03:11,000
+包含你 選課的時候
+when you’re choosing courses,
+
+92
+00:03:11,000 --> 00:03:14,000
+你也會碰到其他的 僑生或外籍生
+you’ll also encounter other overseas or international students.
+
+93
+00:03:14,000 --> 00:03:16,000
+同時 延伸這個話題
+Extending this topic,
+
+94
+00:03:16,000 --> 00:03:18,000
+比如說 我們現在有很多
+we now have many
+
+95
+00:03:18,000 --> 00:03:20,000
+所謂的 EMI課程
+so‑called EMI courses—
+
+96
+00:03:20,000 --> 00:03:21,000
+就是English
+English
+
+97
+00:03:21,000 --> 00:03:23,000
+as a Medium of Instruction
+as a Medium of Instruction—
+
+98
+00:03:23,000 --> 00:03:25,000
+就是 全英授課
+courses fully taught in English.
+
+99
+00:03:25,000 --> 00:03:27,000
+從大一開始就有
+They are available starting in the first year.
+
+100
+00:03:27,000 --> 00:03:28,000
+某一些 必修課程
+Some required courses
+
+101
+00:03:28,000 --> 00:03:30,000
+它就會開成 EMI課
+will be offered as EMI,
+
+102
+00:03:30,000 --> 00:03:31,000
+全英課
+i.e., fully English‑taught.
+
+103
+00:03:31,000 --> 00:03:33,000
+所以 對於大一的學生 來講
+So for first‑year students,
+
+104
+00:03:33,000 --> 00:03:35,000
+我覺得 最適合
+I think the best time
+
+105
+00:03:35,000 --> 00:03:36,000
+就是在 這個時間點
+is right now:
+
+106
+00:03:36,000 --> 00:03:38,000
+你就 比如說 你大一開始
+for example, at the start of freshman year,
+
+107
+00:03:38,000 --> 00:03:39,000
+如果有機會
+if you have the chance,
+
+108
+00:03:39,000 --> 00:03:40,000
+你就選一點
+choose a bit—
+
+109
+00:03:40,000 --> 00:03:42,000
+選一兩個 EMI課
+take one or two EMI courses.
+
+110
+00:03:42,000 --> 00:03:43,000
+這個時候 因為你高中
+At this time, because you’ve just come out of high school,
+
+111
+00:03:43,000 --> 00:03:45,000
+剛
+just
+
+112
+00:03:45,000 --> 00:03:46,000
+剛經歷過
+you’ve just gone through it.
+
+113
+00:03:46,000 --> 00:03:48,000
+不然等你已經 荒廢了一兩個年
+Otherwise, if you let a year or two slip by
+
+114
+00:03:48,000 --> 00:03:50,000
+之後你才要 再回來修 EMI課
+and only then come back to take EMI courses,
+
+115
+00:03:50,000 --> 00:03:54,000
+你反而會有一些 轉換的障礙
+you’ll run into transition hurdles instead.
+
+116
+00:03:54,000 --> 00:03:55,000
+所以 最好的方式 就是說
+So the best approach is:
+
+117
+00:03:55,000 --> 00:03:56,000
+如果有機會
+if you have the chance,
+
+118
+00:03:56,000 --> 00:03:58,000
+你也可以請問 學長姊的意見
+ask seniors for their advice,
+
+119
+00:03:58,000 --> 00:04:01,000
+就可以 選一些 EMI課
+and choose a few EMI classes.
+
+120
+00:04:01,000 --> 00:04:03,000
+所以 全英授課 還包含
+Full-English instruction also includes
+
+121
+00:04:03,000 --> 00:04:06,000
+就是說 你自己的 聽 說 讀 寫
+your own listening, speaking, reading, and writing,
+
+122
+00:04:06,000 --> 00:04:08,000
+每一個 全英課程部分
+and in each fully English course,
+
+123
+00:04:08,000 --> 00:04:10,000
+其實 也可能 都會包含
+there may also be components like
+
+124
+00:04:10,000 --> 00:04:12,000
+就是 MOOCs 磨課師課程
+MOOCs—massive open online courses,
+
+125
+00:04:12,000 --> 00:04:14,000
+它可能會搭配 Coursera 課
+possibly paired with Coursera courses,
+
+126
+00:04:14,000 --> 00:04:15,000
+Coursera 就是一個
+where Coursera is
+
+127
+00:04:15,000 --> 00:04:18,000
+或者是其他的 課程平台
+one such platform among others,
+
+128
+00:04:18,000 --> 00:04:21,000
+都是在 形塑學生的 自主學習能力
+all aimed at shaping students’ self-directed learning ability.
+
+129
+00:04:21,000 --> 00:04:23,000
+尤其我們 現在培養的學生
+Especially since the students we’re training now
+
+130
+00:04:23,000 --> 00:04:26,000
+是四年、六年、十年之後
+will be stepping into society four, six, or ten years later,
+
+131
+00:04:26,000 --> 00:04:27,000
+要面對 未來的社會
+to face the future society,
+
+132
+00:04:27,000 --> 00:04:29,000
+所以這件事情 不太可能
+it’s not really possible
+
+133
+00:04:29,000 --> 00:04:32,000
+用過去的知識 教現在的年輕人
+to teach today’s youth with yesterday’s knowledge
+
+134
+00:04:32,000 --> 00:04:34,000
+去面對十年之後的未來
+and expect them to handle a decade-from-now future.
+
+135
+00:04:34,000 --> 00:04:35,000
+所以大部分 都還是 你
+So most of it still relies on you—
+
+136
+00:04:35,000 --> 00:04:36,000
+自主學習的能力
+your ability to learn independently.
+
+137
+00:04:36,000 --> 00:04:37,000
+接下來就是說
+Next,
+
+138
+00:04:37,000 --> 00:04:39,000
+真正 你修課 的部分
+about the courses you actually take,
+
+139
+00:04:39,000 --> 00:04:41,000
+比如說 你大一、大二、大三
+for example in your first, second, and third years,
+
+140
+00:04:41,000 --> 00:04:43,000
+有一些 年輕人 就是說
+some students,
+
+141
+00:04:43,000 --> 00:04:45,000
+因為 相對而言 很有憧憬
+because they’re full of aspirations,
+
+142
+00:04:45,000 --> 00:04:48,000
+但是會 決定做得太快
+make decisions too quickly,
+
+143
+00:04:48,000 --> 00:04:50,000
+包含 你在選課 的時候
+including when selecting courses.
+
+144
+00:04:50,000 --> 00:04:52,000
+所以其實 我們(國企系, International Business Studies, IBS)的必修
+So in fact, our IBS required courses
+
+145
+00:04:52,000 --> 00:04:54,000
+大概就是在 5-60學分
+are roughly 50–60 credits.
+
+146
+00:04:54,000 --> 00:04:56,000
+我們(國企系IBS)的 畢業學分 是128(學分)
+The graduation requirement is 128 credits.
+
+147
+00:04:56,000 --> 00:04:59,000
+所以 其實有 超過一半以上的課
+So more than half of your courses
+
+148
+00:04:59,000 --> 00:05:00,000
+都是你的 選修課
+are electives.
+
+149
+00:05:00,000 --> 00:05:02,000
+其中又有 很大的一部分
+And a large portion of those
+
+150
+00:05:02,000 --> 00:05:04,000
+是 通識課程
+are general education courses.
+
+151
+00:05:04,000 --> 00:05:07,000
+同學們 都會盡量想要 搶通識
+Students tend to rush to grab GE classes.
+
+152
+00:05:07,000 --> 00:05:08,000
+當然 選什麼通識
+Of course, which GE to take
+
+153
+00:05:08,000 --> 00:05:09,000
+其實 也可以問
+you can ask
+
+154
+00:05:09,000 --> 00:05:11,000
+學長姐們的意見 是最直接的
+your seniors—the most straightforward way.
+
+155
+00:05:11,000 --> 00:05:15,000
+但是千萬 不要為了搶 而去修 那門通識課
+But don’t take a GE course just because it’s available to grab.
+
+156
+00:05:15,000 --> 00:05:18,000
+因為 必修課程 是我們國企系(IBS) 的必修
+Because required courses are required by IBS,
+
+157
+00:05:18,000 --> 00:05:21,000
+選修課程 就是有分 專業選修
+and electives are split into professional electives
+
+158
+00:05:21,000 --> 00:05:22,000
+跟 自由選修
+and free electives.
+
+159
+00:05:22,000 --> 00:05:24,000
+總共(畢業) 128學分裡面
+Within the total 128 credits,
+
+160
+00:05:24,000 --> 00:05:25,000
+所有的 管院
+across the entire College of Management,
+
+161
+00:05:25,000 --> 00:05:27,000
+我們(管院) 有五個系 一個學程
+we have five departments and one program,
+
+162
+00:05:27,000 --> 00:05:31,000
+有經濟、國企、資管、財金、觀餐
+Economics, International Business, MIS, Finance, and Hospitality,
+
+163
+00:05:31,000 --> 00:05:32,000
+還有一個 管理學院學生班(管學)
+plus the Management Student Program.
+
+164
+00:05:32,000 --> 00:05:35,000
+大家的 必修學分數 都差不多
+The number of required credits is similar for everyone,
+
+165
+00:05:35,000 --> 00:05:37,000
+都是 50-60學分
+around 50–60 credits.
+
+166
+00:05:37,000 --> 00:05:39,000
+在這 50-60學分 之外
+Beyond these 50–60 credits,
+
+167
+00:05:39,000 --> 00:05:42,000
+就是所謂的 專業選修 跟 自由選修
+you have professional and free electives.
+
+168
+00:05:42,000 --> 00:05:44,000
+自由選修裡面 當然你要 修什麼都可以
+For free electives, you can take whatever you like,
+
+169
+00:05:44,000 --> 00:05:48,000
+你也可以修 外系、外院的課
+including courses in other departments or colleges.
+
+170
+00:05:48,000 --> 00:05:50,000
+你開始去 思考一下
+Start thinking about
+
+171
+00:05:50,000 --> 00:05:52,000
+那你要 選什麼課
+what courses you want to take,
+
+172
+00:05:52,000 --> 00:05:53,000
+我等一下會 解釋一下
+and I’ll explain in a moment
+
+173
+00:05:53,000 --> 00:05:55,000
+你可以 用什麼樣的架構 去思考
+what framework you can use to think about it—
+
+174
+00:05:55,000 --> 00:05:56,000
+你要選什麼課
+which courses to choose.
+
+175
+00:05:56,000 --> 00:05:58,000
+我剛剛講的 意思就是說
+What I meant earlier is:
+
+176
+00:05:58,000 --> 00:06:00,000
+其實你 認真地思考 128學分
+if you think carefully about the 128 credits,
+
+177
+00:06:00,000 --> 00:06:04,000
+你每一個學期 如果修21學分
+and take 21 credits per semester,
+
+178
+00:06:04,000 --> 00:06:07,000
+6個學期 就有126學分
+in six semesters you’ll have 126 credits,
+
+179
+00:06:07,000 --> 00:06:08,000
+所以六個學期 就是三年
+which is three years.
+
+180
+00:06:08,000 --> 00:06:11,000
+所以事實上 你不用那麼趕
+So in fact, there’s no need to rush.
+
+181
+00:06:11,000 --> 00:06:14,000
+就是說 很多同學 會在大一的時候 修25(學分)
+Many students take 25 credits in freshman year,
+
+182
+00:06:14,000 --> 00:06:15,000
+26、28(學分)
+even 26 or 28,
+
+183
+00:06:15,000 --> 00:06:18,000
+但是 你有超過25(學分) 要請導師簽名
+but if you exceed 25 you need your mentor’s signature,
+
+184
+00:06:18,000 --> 00:06:22,000
+所以 我們就會卡關
+so we’ll have to push back and ask,
+
+185
+00:06:22,000 --> 00:06:24,000
+(問)你為什麼 要修這麼多學分
+“Why do you need so many credits?”
+
+186
+00:06:24,000 --> 00:06:27,000
+我的原則 基本上有一個概念 就是說
+My basic principle is this:
+
+187
+00:06:27,000 --> 00:06:30,000
+你修幾學分的課 (每週)你應該要(花)乘以3倍(的時間)
+for however many credits you take, spend roughly three times that per week.
+
+188
+00:06:30,000 --> 00:06:33,000
+就是說 假設你一學期 修20學分
+For example, if you take 20 credits in a semester,
+
+189
+00:06:33,000 --> 00:06:35,000
+那你應該要 花在課程的學習
+you should spend on coursework and study
+
+190
+00:06:36,000 --> 00:06:40,000
+準備課程上面 總共要花 60小時(/週)
+a total of about 60 hours per week.
+
+191
+00:06:40,000 --> 00:06:41,000
+60小時 的意思是
+Sixty hours means
+
+192
+00:06:41,000 --> 00:06:43,000
+如果你 星期一到星期六
+from Monday to Saturday,
+
+193
+00:06:43,000 --> 00:06:46,000
+你每天要 花10小時 在準備你的課程上
+you’d spend about 10 hours each day preparing for your courses.
+
+194
+00:06:46,000 --> 00:06:48,000
+這個是一個 基本原則
+That’s a basic rule of thumb.
+
+195
+00:06:48,000 --> 00:06:51,000
+當然你會修 比較困難的課
+Of course, some courses are harder,
+
+196
+00:06:51,000 --> 00:06:53,000
+或是 比較簡單的課
+and some are easier.
+
+197
+00:06:53,000 --> 00:06:55,000
+通常比如說 像通識課程
+Usually, for general education courses,
+
+198
+00:06:55,000 --> 00:06:59,000
+基本上 你都不太需要 花一倍以上的時間
+you don’t need to spend more than “one times” the class time.
+
+199
+00:06:59,000 --> 00:07:01,000
+但是 我覺得這是 一個原則
+But this principle
+
+200
+00:07:01,000 --> 00:07:04,000
+我要提醒你 不要搶著 把學分修完
+is to remind you not to rush to finish credits.
+
+201
+00:07:04,000 --> 00:07:06,000
+其實你就 慢慢修
+Just take them steadily,
+
+202
+00:07:06,000 --> 00:07:09,000
+一個學期 修21學分 左右
+around 21 credits per semester,
+
+203
+00:07:09,000 --> 00:07:12,000
+6個學期 就自然而然的 126
+and in six semesters you’ll naturally reach 126,
+
+204
+00:07:12,000 --> 00:07:13,000
+就只差2學分
+just 2 credits short,
+
+205
+00:07:13,000 --> 00:07:15,000
+128(學分) 就可以畢業 對不對
+and with 128 you can graduate, right?
+
+206
+00:07:15,000 --> 00:07:16,000
+所以 你根本不用
+So you really don’t need
+
+207
+00:07:16,000 --> 00:07:19,000
+每個學期都 修25 或28(學分)
+to take 25 or 28 every semester.
+
+208
+00:07:19,000 --> 00:07:23,000
+你沒有那麼多的時間 可以去消化吸收
+You don’t have that much time to digest and absorb,
+
+209
+00:07:23,000 --> 00:07:26,000
+那你修的那些學分 基本上也是 浪費
+so those extra credits are basically wasted.
+
+210
+00:07:26,000 --> 00:07:28,000
+所以 我的建議是說
+Therefore my suggestion is:
+
+211
+00:07:28,000 --> 00:07:30,000
+第一個 當然就是安排 必修
+first, schedule your required courses,
+
+212
+00:07:30,000 --> 00:07:33,000
+然後我們(IBS)的必修 大概管院(各系)的必修
+and for IBS required courses, similar to other departments in the college,
+
+213
+00:07:33,000 --> 00:07:34,000
+很多東西都一樣
+many things are the same:
+
+214
+00:07:34,000 --> 00:07:39,000
+就是經濟、會計、統計、管理學 等等
+economics, accounting, statistics, management, etc.
+
+215
+00:07:39,000 --> 00:07:42,000
+這些就是光 (大一)上下(大二)上下 四個學期加起來
+Across freshman and sophomore fall/spring—four semesters in total—
+
+216
+00:07:42,000 --> 00:07:44,000
+就已經 40+學分了
+that’s already 40+ credits.
+
+217
+00:07:44,000 --> 00:07:46,000
+大概我們 國企系(IBS)的必修
+For IBS specifically, required courses include
+
+218
+00:07:46,000 --> 00:07:48,000
+像國際企業管理 然後 行銷管理
+International Business Management and Marketing Management,
+
+219
+00:07:48,000 --> 00:07:52,000
+大學就是 行銷管理、財務管理
+at the undergraduate level things like Marketing, Financial Management,
+
+220
+00:07:52,000 --> 00:07:54,000
+國際策略管理 等等
+International Strategic Management, and so on.
+
+221
+00:07:54,000 --> 00:07:57,000
+所以 這些課程 其實你把它 安排起來之外
+So after you schedule these courses,
+
+222
+00:07:57,000 --> 00:07:59,000
+剛才 主任 也有介紹
+as the chair just introduced,
+
+223
+00:07:59,000 --> 00:08:01,000
+我們(IBS) 有三個track(次領域)
+IBS has three tracks (subfields),
+
+224
+00:08:01,000 --> 00:08:03,000
+就是 國際企業學系(IBS) 裡面
+within the Department of International Business Studies (IBS),
+
+225
+00:08:03,000 --> 00:08:06,000
+有 三個不同的(次)領域
+there are three different subfields.
+
+226
+00:08:06,000 --> 00:08:08,000
+有 國際行銷與創新 (次)領域
+International Marketing & Innovation (subfield),
+
+227
+00:08:08,000 --> 00:08:10,000
+就是剛剛 主任跟靜怡老師 都是
+the chair and Prof. Ching‑Yi mentioned just now are both in
+
+228
+00:08:10,000 --> 00:08:12,000
+國際行銷與創新 (次)領域
+the International Marketing & Innovation track.
+
+229
+00:08:12,000 --> 00:08:14,000
+我是 國際企業經營與策略 (次)領域
+I am in the International Business Operations & Strategy track,
+
+230
+00:08:14,000 --> 00:08:16,000
+還有一個是 國際金融與財務 (次)領域
+and there is also the International Finance & Financial Management track.
+
+231
+00:08:16,000 --> 00:08:20,000
+我們(IBS)就會開 相對應的 專業選修課
+We offer corresponding professional electives,
+
+232
+00:08:20,000 --> 00:08:24,000
+這種track(次領域)的課 就是在幫助你自己
+and these track courses help you
+
+233
+00:08:24,000 --> 00:08:27,000
+如果你 經過一段時間
+after some time,
+
+234
+00:08:27,000 --> 00:08:29,000
+你要慢慢地 去探索
+as you gradually explore,
+
+235
+00:08:29,000 --> 00:08:32,000
+4年 或者是5年 或6年之後
+four, five, or six years later,
+
+236
+00:08:32,000 --> 00:08:35,000
+你進到 未來的社會跟產業 的時候
+when you enter the future society and industries,
+
+237
+00:08:35,000 --> 00:08:38,000
+大概比較 適合從事哪個行業 的工作
+to see which line of work suits you better.
+
+238
+00:08:38,000 --> 00:08:42,000
+所以你就會 多修一點點 行銷或創新的
+So you might take a bit more marketing or innovation
+
+239
+00:08:42,000 --> 00:08:43,000
+專業選修課程
+professional electives,
+
+240
+00:08:43,000 --> 00:08:46,000
+或者是 國際企業經營與策略 的專業課程
+or courses in international business operations & strategy,
+
+241
+00:08:46,000 --> 00:08:48,000
+或者是 國際財務與金融 的專業課程
+or courses in international finance & financial management.
+
+242
+00:08:48,000 --> 00:08:50,000
+所以你可以 慢慢地去搭配
+So you can mix and match gradually.
+
+243
+00:08:50,000 --> 00:08:53,000
+所以 我剛剛講的意思就是說 128學分 裡面
+So, as I said, within the 128 credits,
+
+244
+00:08:53,000 --> 00:08:55,000
+要請 年輕人 仔細思考
+I ask young students to think carefully.
+
+245
+00:08:55,000 --> 00:08:57,000
+當然我 不能限定你
+Of course I can’t force you—
+
+246
+00:08:57,000 --> 00:08:59,000
+你如果一定要 修滿25學分的話
+if you insist on taking 25 credits,
+
+247
+00:08:59,000 --> 00:09:02,000
+那就是 6個學期 你就是修完150(學分)
+then over six semesters you’ll finish 150,
+
+248
+00:09:02,000 --> 00:09:05,000
+若5個學期 就是125(學分)
+and in five semesters you’ll have 125.
+
+249
+00:09:05,000 --> 00:09:07,000
+但是 你不需要 那麼趕
+But you don’t need to rush like that.
+
+250
+00:09:07,000 --> 00:09:10,000
+因為 假設你認真 要把某一門學科 學好
+If you truly want to learn a subject well,
+
+251
+00:09:10,000 --> 00:09:13,000
+如果 按照乘以3倍(時間/週)的原則 的話
+by the three‑times rule per week,
+
+252
+00:09:13,000 --> 00:09:14,000
+你要 修25學分
+if you take 25 credits,
+
+253
+00:09:14,000 --> 00:09:18,000
+(每週)必須花75小時 在課程的 課前閱讀
+you must spend 75 hours per week on
+
+254
+00:09:18,000 --> 00:09:20,000
+課前作業準備
+pre‑class reading,
+
+255
+00:09:20,000 --> 00:09:21,000
+小組討論
+assignment preparation,
+
+256
+00:09:21,000 --> 00:09:23,000
+課堂的 上課
+group discussions,
+
+257
+00:09:23,000 --> 00:09:24,000
+又再 3小時
+and class time,
+
+258
+00:09:24,000 --> 00:09:25,000
+假設你修的是 3學分(的課)
+another three hours,
+
+259
+00:09:25,000 --> 00:09:26,000
+課前3小時
+assuming it’s a 3‑credit course,
+
+260
+00:09:26,000 --> 00:09:27,000
+課後3小時
+three hours before class,
+
+261
+00:09:27,000 --> 00:09:28,000
+再加上 上課3小時
+three hours after class,
+
+262
+00:09:28,000 --> 00:09:29,000
+這樣就是 3倍
+plus three hours of in‑class time—
+
+263
+00:09:29,000 --> 00:09:31,000
+所以 如果你一學期修 20學分
+that makes the threefold total.
+
+264
+00:09:31,000 --> 00:09:32,000
+你要花60小時(/週)
+So if you take 20 credits in a semester,
+
+265
+00:09:32,000 --> 00:09:35,000
+理論上 60小時 就是你 星期一到星期六
+you need to invest 60 hours per week,
+
+266
+00:09:35,000 --> 00:09:38,000
+都有安排給 在你的學習 上面
+which practically means Monday through Saturday,
+
+267
+00:09:38,000 --> 00:09:40,000
+(平均)每天都要 10小時
+you allocate about 10 hours per day
+
+268
+00:09:40,000 --> 00:09:42,000
+那你 一天24小時
+to preparing for your courses.
+
+269
+00:09:42,000 --> 00:09:45,000
+你至少要花 8小時 要洗澡
+In a 24‑hour day,
+
+270
+00:09:45,000 --> 00:09:46,000
+刷牙 洗臉 睡覺
+you’ll spend at least 8 hours to bathe,
+
+271
+00:09:46,000 --> 00:09:49,000
+然後你還有 8小時 要上課 假設
+brush teeth, wash your face, and sleep,
+
+272
+00:09:49,000 --> 00:09:51,000
+那你 還有8小時 你要怎麼去分配
+and let’s say 8 more hours to attend classes.
+
+273
+00:09:51,000 --> 00:09:54,000
+我覺得 這個是對於 一個剛進大學的年輕人
+How will you distribute the remaining 8 hours?
+
+274
+00:09:54,000 --> 00:09:56,000
+因為 高中以前
+For a young person just entering university,
+
+275
+00:09:56,000 --> 00:09:59,000
+都是 學校排課 排好的
+since before college
+
+276
+00:09:59,000 --> 00:10:02,000
+所以這個部分 我覺得是比較 值得提醒大家
+the school used to schedule everything for you,
+
+277
+00:10:02,000 --> 00:10:04,000
+而且馬上快要 選課
+this is something I want to remind you about.
+
+278
+00:10:04,000 --> 00:10:05,000
+還有一件事情
+And course selection is coming up soon.
+
+279
+00:10:05,000 --> 00:10:07,000
+騎 摩托車
+Another matter—
+
+280
+00:10:07,000 --> 00:10:11,000
+如果 18歲 已經考上駕照
+riding a scooter.
+
+281
+00:10:11,000 --> 00:10:12,000
+開始 你要 騎摩托車
+If you’ve already gotten your license at 18,
+
+282
+00:10:12,000 --> 00:10:14,000
+或是 你要 買摩托車
+and you’re going to ride a scooter,
+
+283
+00:10:14,000 --> 00:10:15,000
+買摩托車 比較簡單
+or buy a scooter,
+
+284
+00:10:15,000 --> 00:10:17,000
+騎摩托車 比較難
+buying is the easy part,
+
+285
+00:10:17,000 --> 00:10:19,000
+而且要 適應 埔里
+riding well is the harder part,
+
+286
+00:10:19,000 --> 00:10:22,000
+因為學生們 都會想要 去鎮上
+and you need to adapt to Puli.
+
+287
+00:10:22,000 --> 00:10:23,000
+吃飯啊
+Because students often want to head into town
+
+288
+00:10:23,000 --> 00:10:24,000
+玩耍一下
+to eat,
+
+289
+00:10:24,000 --> 00:10:25,000
+也有 KTV可以唱
+to hang out for a while,
+
+290
+00:10:25,000 --> 00:10:27,000
+就是諸如此類的這些
+there’s even KTV to sing—
+
+291
+00:10:27,000 --> 00:10:28,000
+但是呢
+things like that.
+
+292
+00:10:28,000 --> 00:10:31,000
+第一個 假設你還不是 很會騎摩托車 的時候
+But—
+
+293
+00:10:31,000 --> 00:10:34,000
+或者是 你要 被人家載
+first, if you’re not yet good at riding,
+
+294
+00:10:34,000 --> 00:10:36,000
+那你也要考慮 要載人的那個人
+or if you’re being given a ride,
+
+295
+00:10:36,000 --> 00:10:38,000
+他是不是 很會騎摩托車
+you also need to consider whether the driver
+
+296
+00:10:38,000 --> 00:10:40,000
+所以這個東西還是要
+really rides well.
+
+297
+00:10:40,000 --> 00:10:42,000
+大家稍微 (互相)提醒注意一下
+So please remind each other
+
+298
+00:10:42,000 --> 00:10:45,000
+基本上 必修 先把它填滿
+and pay attention to safety.
+
+299
+00:10:45,000 --> 00:10:48,000
+那個剛好 這個暑假 的時候
+Basically, fill the required courses first.
+
+300
+00:10:48,000 --> 00:10:50,000
+有一個學生
+Coincidentally, over this summer,
+
+301
+00:10:50,000 --> 00:10:51,000
+我們國企系(IBS)的學生
+one of our IBS students
+
+302
+00:10:51,000 --> 00:10:53,000
+自己寫了一個 選課平台
+coded a course‑planning platform.
+
+303
+00:10:53,000 --> 00:10:55,000
+我有在那個 群組 裡面有放
+I posted it in the group chat.
+
+304
+00:10:55,000 --> 00:10:57,000
+你們可以上去 放放看
+You can go try it.
+
+305
+00:10:57,000 --> 00:10:59,000
+必修 先放進去
+Put all your required courses in first.
+
+306
+00:10:59,000 --> 00:11:00,000
+(課名)後面寫 R
+An “R” after a course name
+
+307
+00:11:00,000 --> 00:11:03,000
+英文字 R 就是 必修
+means it’s required.
+
+308
+00:11:03,000 --> 00:11:05,000
+如果有個S 就是 (課名)下面是 S
+If there’s an “S”, then
+
+309
+00:11:05,000 --> 00:11:07,000
+這是 大二的 選修
+that is a sophomore‑year elective.
+
+310
+00:11:07,000 --> 00:11:09,000
+這是 大二的 必修
+This one is a sophomore required course.
+
+311
+00:11:09,000 --> 00:11:12,000
+這個是 大一的 選修
+This one is a freshman elective.
+
+312
+00:11:12,000 --> 00:11:14,000
+這是 大二的 必修
+This one is a sophomore required course,
+
+313
+00:11:14,000 --> 00:11:16,000
+然後這是開在 下學期 3學分
+and this opens in the second semester for 3 credits,
+
+314
+00:11:16,000 --> 00:11:19,000
+這是 上學期 3學分
+this one opens in the first semester for 3 credits.
+
+315
+00:11:19,000 --> 00:11:21,000
+90% 可能都還是 跟這個
+About 90% will still match
+
+316
+00:11:21,000 --> 00:11:23,000
+課程地圖 是一樣的
+the curriculum map.
+
+317
+00:11:23,000 --> 00:11:24,000
+但是 因為每年
+But because every year
+
+318
+00:11:24,000 --> 00:11:27,000
+因為 每個老師的 時間安排
+depends on each professor’s schedule,
+
+319
+00:11:27,000 --> 00:11:29,000
+可能有 10%會不一樣
+around 10% may differ.
+
+320
+00:11:29,000 --> 00:11:30,000
+也就是說 不見得
+That is, not necessarily
+
+321
+00:11:30,000 --> 00:11:33,000
+這裡開的課 剛好在那個學期 都可以選
+will the courses open in exactly the semester you expect.
+
+322
+00:11:33,000 --> 00:11:36,000
+但是 90% 應該都是對的
+But about 90% should be right.
+
+323
+00:11:36,000 --> 00:11:39,000
+所以如果 (螢幕)往上的話就是
+So if you scroll up on the screen,
+
+324
+00:11:39,000 --> 00:11:41,000
+大一國文 大一英文
+you’ll see Freshman Chinese and Freshman English.
+
+325
+00:11:41,000 --> 00:11:42,000
+現在換了名字
+The names have now changed:
+
+326
+00:11:42,000 --> 00:11:45,000
+大一國文 叫做 中文思辨與表達
+Freshman Chinese is now “Chinese Critical Thinking and Expression,”
+
+327
+00:11:45,000 --> 00:11:47,000
+英文 就叫做
+and English is called
+
+328
+00:11:47,000 --> 00:11:49,000
+跨域專業學術英文
+“Cross‑Disciplinary Academic English.”
+
+329
+00:11:49,000 --> 00:11:52,000
+大一國文 大一英文
+Freshman Chinese and Freshman English
+
+330
+00:11:52,000 --> 00:11:53,000
+它就是 2學分 2學分
+are 2 credits each,
+
+331
+00:11:53,000 --> 00:11:55,000
+這樣就是 4學分
+That makes 4 credits.
+
+332
+00:11:55,000 --> 00:11:58,000
+然後你的上學期 經濟 會計
+Then in your first semester: Economics and Accounting,
+
+333
+00:11:58,000 --> 00:12:00,000
+微積分
+and Calculus.
+
+334
+00:12:00,000 --> 00:12:01,000
+微積分在哪裡
+Where is Calculus?
+
+335
+00:12:01,000 --> 00:12:02,000
+在(螢幕)下面
+It's further down on the screen.
+
+336
+00:12:02,000 --> 00:12:04,000
+所以 3 +3 +3 就是 9學分
+So, 3 + 3 + 3 = 9 credits.
+
+337
+00:12:04,000 --> 00:12:07,000
+所以 4加9 就是13(學分)
+Add those 9 to the 4 above and you get 13.
+
+338
+00:12:07,000 --> 00:12:08,000
+體育 1學分
+Physical Education is 1 credit,
+
+339
+00:12:08,000 --> 00:12:09,000
+程式語言 1學分
+Programming is 1 credit,
+
+340
+00:12:09,000 --> 00:12:11,000
+再加 2學分
+which adds another 2 credits.
+
+341
+00:12:11,000 --> 00:12:13,000
+所以 13 再加2 就是15
+So 13 + 2 = 15.
+
+342
+00:12:13,000 --> 00:12:15,000
+假如你要修 通識 就是
+If you want general education (GE) courses,
+
+343
+00:12:15,000 --> 00:12:17,000
+再選個 5學分
+pick another 5 credits,
+
+344
+00:12:17,000 --> 00:12:19,000
+4, 5, 6, 7, 8 (學分)
+4, 5, 6, 7, or 8 credits—
+
+345
+00:12:19,000 --> 00:12:22,000
+或者是 其他的 選修課程
+or other elective courses.
+
+346
+00:12:22,000 --> 00:12:24,000
+(還有)就是 通識講座
+Also, there is the General Education Lecture.
+
+347
+00:12:24,000 --> 00:12:28,000
+然後就是 follow
+Then just follow
+
+348
+00:12:28,000 --> 00:12:30,000
+我剛講的邏輯 就是說
+the logic I mentioned earlier—
+
+349
+00:12:30,000 --> 00:12:32,000
+不要為了塞(空檔) 而塞(課)
+don’t cram classes just to fill empty slots.
+
+350
+00:12:32,000 --> 00:12:34,000
+(例如)你選 通識
+For example, when choosing GE,
+
+351
+00:12:34,000 --> 00:12:36,000
+通識 它其實也有分 領域
+GE is divided into domains,
+
+352
+00:12:36,000 --> 00:12:37,000
+應該要去 查課表
+so you should check the course list.
+
+353
+00:12:37,000 --> 00:12:39,000
+那我要 提醒年輕人 就是說
+A reminder to young students:
+
+354
+00:12:39,000 --> 00:12:42,000
+就是要 自己去 看課表
+you need to look up courses yourselves;
+
+355
+00:12:42,000 --> 00:12:43,000
+自己要去 查課
+go search for them yourselves.
+
+356
+00:12:43,000 --> 00:12:46,000
+然後 不要只看課名
+And don’t just read the course title.
+
+357
+00:12:46,000 --> 00:12:48,000
+你(不能)只看 課程名稱
+You can’t rely on the name alone,
+
+358
+00:12:48,000 --> 00:12:51,000
+你要 點進去 看課程大綱
+you should click in and read the syllabus,
+
+359
+00:12:51,000 --> 00:12:52,000
+知道 課程大綱
+to know from the syllabus
+
+360
+00:12:52,000 --> 00:12:53,000
+第一週 上什麼
+what is taught in Week 1,
+
+361
+00:12:53,000 --> 00:12:54,000
+第二週 上什麼
+what is taught in Week 2,
+
+362
+00:12:54,000 --> 00:12:55,000
+第三週 上什麼
+what is taught in Week 3,
+
+363
+00:12:55,000 --> 00:12:57,000
+第四週 上什麼
+and what is taught in Week 4.
+
+364
+00:12:57,000 --> 00:13:00,000
+必修課程 當然比較規律
+Required courses are of course more regular.
+
+365
+00:13:00,000 --> 00:13:03,000
+必修課程 (像是)經濟 就是要上那些東西(必要內容)
+For requireds like Economics, the content is fixed;
+
+366
+00:13:03,000 --> 00:13:04,000
+經濟 統計
+Econ, Statistics,
+
+367
+00:13:04,000 --> 00:13:05,000
+會計
+Accounting,
+
+368
+00:13:05,000 --> 00:13:07,000
+微積分 就是要上那些東西(必要內容)
+and Calculus have fixed core content.
+
+369
+00:13:07,000 --> 00:13:08,000
+但是 其他的選修課
+But for other electives,
+
+370
+00:13:08,000 --> 00:13:10,000
+你一定要 看完它的課綱 之後
+you should always read the syllabus
+
+371
+00:13:10,000 --> 00:13:12,000
+再決定 你要不要選
+before deciding whether to take it.
+
+372
+00:13:12,000 --> 00:13:16,000
+然後 有一個 我是覺得 程式語言
+One point I’d like to stress: Programming.
+
+373
+00:13:16,000 --> 00:13:17,000
+國企系(IBS)的學生
+For IBS students,
+
+374
+00:13:17,000 --> 00:13:18,000
+(就像)我剛舉過的那個例子 就是說
+as in the example I just gave about the course planner,
+
+375
+00:13:18,000 --> 00:13:20,000
+選課平台 那個東西
+that was a student’s self-directed learning project.
+
+376
+00:13:20,000 --> 00:13:22,000
+是(IBS)學生自己 自主學習 做的
+Sometimes peer influence matters a lot—
+
+377
+00:13:22,000 --> 00:13:24,000
+所以 有一些時候是
+you might ask someone,
+
+378
+00:13:24,000 --> 00:13:27,000
+同儕 彼此之間的影響 很重要
+they say “programming is so hard,”
+
+379
+00:13:27,000 --> 00:13:28,000
+有時候你問到人
+and you decide not to take it.
+
+380
+00:13:28,000 --> 00:13:30,000
+他跟你說那個 程式好難
+But now, with AI,
+
+381
+00:13:30,000 --> 00:13:31,000
+我不要修 不要修
+coding has become much easier.
+
+382
+00:13:31,000 --> 00:13:32,000
+就會受影響
+All languages involve listening, speaking, reading, writing,
+
+383
+00:13:32,000 --> 00:13:34,000
+但其實 因為現在 有AI之後
+and professional courses do too.
+
+384
+00:13:34,000 --> 00:13:36,000
+寫程式 變成是一件
+For example, I teach Strategy—
+
+385
+00:13:36,000 --> 00:13:37,000
+超級簡單的事情
+you have to understand Strategy when you listen,
+
+386
+00:13:37,000 --> 00:13:39,000
+所有的language都是 聽 說 讀 寫
+be able to articulate it,
+
+387
+00:13:39,000 --> 00:13:41,000
+專業課程也是 聽 說 讀 寫
+read and write about it, and analyze it.
+
+388
+00:13:41,000 --> 00:13:42,000
+比如說我教 策略
+So: listening, speaking, reading, writing.
+
+389
+00:13:42,000 --> 00:13:43,000
+你要聽得懂 策略
+Every professional course
+
+390
+00:13:43,000 --> 00:13:45,000
+聽得懂 說得出來
+also requires LSRW.
+
+391
+00:13:45,000 --> 00:13:48,000
+然後 看得懂 會寫 會分析
+Apart from Programming,
+
+392
+00:13:48,000 --> 00:13:49,000
+所以 聽 說 讀 寫
+and Freshman English and Freshman Chinese,
+
+393
+00:13:49,000 --> 00:13:50,000
+每一個 專業課程
+we also have a second foreign language.
+
+394
+00:13:50,000 --> 00:13:51,000
+也都是要 聽 說 讀 寫
+Language skills have very high ROI
+
+395
+00:13:51,000 --> 00:13:54,000
+除了 程式語言 之外
+for graduate study and employment later on.
+
+396
+00:13:54,000 --> 00:13:57,000
+那個 大一英文 跟 大一國文 之外
+In other words, beyond English,
+
+397
+00:13:57,000 --> 00:13:59,000
+其實我們還有 第二外語
+think carefully
+
+398
+00:13:59,000 --> 00:14:02,000
+其實 語言 對於將來 畢業之後的
+about what you want as your second foreign language.
+
+399
+00:14:02,000 --> 00:14:05,000
+升學 跟 就業
+English can also be taken further,
+
+400
+00:14:05,000 --> 00:14:08,000
+它的那個 CP值(成本效益)
+for example, as I mentioned earlier—
+
+401
+00:14:08,000 --> 00:14:10,000
+超高
+EMI courses.
+
+402
+00:14:10,000 --> 00:14:12,000
+也就是說你除了 英文 之外
+You can keep one EMI course each week,
+
+403
+00:14:12,000 --> 00:14:14,000
+你可以 好好想一想
+maybe 1, 2, or 3 credits,
+
+404
+00:14:14,000 --> 00:14:16,000
+你的 第二外語 要學什麼
+so at least you keep yourself
+
+405
+00:14:16,000 --> 00:14:19,000
+所以 英文 當然也還可以 再另外修(更多)
+immersed every week
+
+406
+00:14:19,000 --> 00:14:20,000
+比如像我 剛剛講過的
+in an English-learning environment,
+
+407
+00:14:20,000 --> 00:14:22,000
+也許是 EMI課程
+and be required every week
+
+408
+00:14:22,000 --> 00:14:26,000
+你也可以 藉由每週都有一門 EMI課程
+to have a class in English.
+
+409
+00:14:26,000 --> 00:14:28,000
+也許是 1學分 2學分 或3學分
+Or you can take Self-Directed Learning (SDL).
+
+410
+00:14:28,000 --> 00:14:29,000
+那你至少可以 保持自己
+SDL should be available starting in freshman year.
+
+411
+00:14:29,000 --> 00:14:31,000
+每一週 都有浸潤在
+Every student can count
+
+412
+00:14:31,000 --> 00:14:33,000
+英文 的環境
+up to 2 credits of SDL toward graduation.
+
+413
+00:14:33,000 --> 00:14:36,000
+就被要求 你每週都需要
+That is, you can take online courses yourself,
+
+414
+00:14:36,000 --> 00:14:37,000
+有一個 英文
+or carry out a self-chosen topic,
+
+415
+00:14:37,000 --> 00:14:39,000
+或者是你去修 自主學習
+and then find a faculty advisor
+
+416
+00:14:39,000 --> 00:14:41,000
+自主學習 應該大一開始 都可以修
+to supervise you for 2 credits—
+
+417
+00:14:41,000 --> 00:14:42,000
+每一個學生(畢業)
+each time 1 or 2 credits.
+
+418
+00:14:42,000 --> 00:14:44,000
+可以抵 2學分的自主學習
+For these things,
+
+419
+00:14:44,000 --> 00:14:45,000
+也就是 你自己 可以修(線上課程)
+your seniors tend to have the most experience.
+
+420
+00:14:45,000 --> 00:14:47,000
+或者說 你自己 可以做一個主題
+Another reminder:
+
+421
+00:14:47,000 --> 00:14:48,000
+然後 找指導教授
+as a freshman,
+
+422
+00:14:48,000 --> 00:14:50,000
+那你可以得 2學分
+you can also take sophomore electives,
+
+423
+00:14:50,000 --> 00:14:51,000
+(每次得)1 或 2學分
+as long as the class time fits.
+
+424
+00:14:51,000 --> 00:14:53,000
+那這些東西 其實就是說
+You’ll need to add the class by instructor consent,
+
+425
+00:14:53,000 --> 00:14:55,000
+學長姐 會 最有經驗
+for example, if a professor opens
+
+426
+00:14:55,000 --> 00:14:57,000
+還有一個要 提醒大家 就是說
+a sophomore elective,
+
+427
+00:14:57,000 --> 00:14:59,000
+比如說 大一
+freshmen can add it if the time works,
+
+428
+00:14:59,000 --> 00:15:02,000
+其實也 可以修大二的 選修課
+by requesting an add code.
+
+429
+00:15:02,000 --> 00:15:04,000
+如果那個(上課)時間 是你可以的話
+So there’s no limit saying
+
+430
+00:15:04,000 --> 00:15:06,000
+只是 你要去 加簽
+freshmen can only take freshman electives.
+
+431
+00:15:06,000 --> 00:15:07,000
+比如說 教授開課
+Freshmen can take sophomore electives,
+
+432
+00:15:07,000 --> 00:15:09,000
+如果開在 大二的選修課
+and you can first take
+
+433
+00:15:09,000 --> 00:15:10,000
+大一 只要那個(上課)時間可以
+electives from neighboring or other departments.
+
+434
+00:15:10,000 --> 00:15:12,000
+也可以來 加簽
+For example, if you’re very interested in Finance,
+
+435
+00:15:12,000 --> 00:15:14,000
+所以 沒有限定說
+maybe Finance offers certain courses,
+
+436
+00:15:14,000 --> 00:15:16,000
+你大一 只能選大一的 選修課
+or MIS offers certain courses—
+
+437
+00:15:16,000 --> 00:15:19,000
+所以你大一 也可以去修大二的 選修課
+you can look them up and take them.
+
+438
+00:15:19,000 --> 00:15:22,000
+然後你也可以 先去修
+NCNU also has the Colleges of Science, Education, and Humanities,
+
+439
+00:15:22,000 --> 00:15:25,000
+隔壁系 外系 的選修課
+so I think you should treat the university
+
+440
+00:15:25,000 --> 00:15:28,000
+比如說 假設你對於 財金 很有興趣
+as a place where young adults find resources themselves.
+
+441
+00:15:28,000 --> 00:15:32,000
+那可能也許 財金系 有開什麼課
+Maybe the Department of Finance also offers certain courses.
+
+442
+00:15:32,000 --> 00:15:34,000
+或者是 資管系 有開什麼課
+Or perhaps the MIS Department offers some courses.
+
+443
+00:15:34,000 --> 00:15:36,000
+你也可以去看 也可以去修
+You can look them up and take them.
+
+444
+00:15:36,000 --> 00:15:41,000
+然後 暨大(NCNU)又有 科(技學)院 教(育學)院 人文學院
+And NCNU also has the Colleges of Science, Education, and Humanities.
+
+445
+00:15:41,000 --> 00:15:43,000
+其實 我覺得你 把它當成
+I think you should treat the university
+
+446
+00:15:43,000 --> 00:15:45,000
+我覺得 年輕人 就已經是大人
+as a place where young adults are already adults,
+
+447
+00:15:45,000 --> 00:15:46,000
+你要自己 去找資源
+and you need to find resources on your own.
+
+448
+00:15:46,000 --> 00:15:49,000
+那個資源 就在我們的 課程平台 上面
+Those resources are on our course platforms.
+
+449
+00:15:49,000 --> 00:15:51,000
+有人講說 你如果要在網路上
+As people often say, when you go online,
+
+450
+00:15:51,000 --> 00:15:53,000
+你不能老是 打伸手牌
+you shouldn’t always expect others to spoon‑feed you answers.
+
+451
+00:15:53,000 --> 00:15:55,000
+你自己要 先去爬文
+You need to do your own reading and research first.
+
+452
+00:15:55,000 --> 00:15:56,000
+所以你 爬完之後
+After you’ve done that,
+
+453
+00:15:56,000 --> 00:15:57,000
+如果你 難以決定
+if you still can’t decide,
+
+454
+00:15:57,000 --> 00:15:59,000
+那就趕快 問學長姐
+then quickly ask your senior classmates.
+
+455
+00:15:59,000 --> 00:16:01,000
+如果你想要 找導師 給你建議
+If you want advice from a mentor,
+
+456
+00:16:01,000 --> 00:16:03,000
+那就歡迎大家 來找導師
+you’re welcome to come to your mentor
+
+457
+00:16:03,000 --> 00:16:05,000
+給你一些修課的建議
+for suggestions on course selection.
+
+458
+00:16:05,000 --> 00:16:07,000
+有關實習
+Regarding internships—
+
+459
+00:16:07,000 --> 00:16:09,000
+我們(IBS) 暑假實習
+our summer internships
+
+460
+00:16:09,000 --> 00:16:11,000
+也可以拿學分
+can also count for credits.
+
+461
+00:16:11,000 --> 00:16:13,000
+就是說 實習 這件事情
+That is, when it comes to internships,
+
+462
+00:16:13,000 --> 00:16:15,000
+你也可以(自己) 多實習
+you can certainly do more of them on your own,
+
+463
+00:16:15,000 --> 00:16:17,000
+但是 不要拿學分
+without necessarily taking credits for them.
+
+464
+00:16:17,000 --> 00:16:19,000
+反正就是我們(IBS) 有(企業實習)一 二 三 四 五 六
+In any case, we offer Corporate Internship I, II, III, IV, V, and VI.
+
+465
+00:16:19,000 --> 00:16:20,000
+我們 企業實習
+Our corporate internship courses—
+
+466
+00:16:20,000 --> 00:16:23,000
+(一) (二) (三) (四) (五) (六)
+I, II, III, IV, V, VI—
+
+467
+00:16:23,000 --> 00:16:25,000
+那(選企業實習課)就是 可以給你學分
+if you enroll in them, they can give you credits.
+
+468
+00:16:25,000 --> 00:16:28,000
+那當然你自己要去找 任何的實習
+Of course, you can also go find any internship yourself,
+
+469
+00:16:28,000 --> 00:16:30,000
+你自己要去做 都沒有問題
+and do it—no problem at all.
+
+470
+00:16:30,000 --> 00:16:33,000
+我特別推薦是 暑假實習
+I especially recommend summer internships.
+
+471
+00:16:33,000 --> 00:16:35,000
+暑期實習 是最好的
+Summer internships are the best.
+
+472
+00:16:35,000 --> 00:16:37,000
+因為我們(NCNU) 現在(每學期上課) 只有16週
+Because at NCNU we now have only 16 weeks per semester,
+
+473
+00:16:37,000 --> 00:16:39,000
+所以 六月初 六月中之前
+so by early to mid‑June
+
+474
+00:16:39,000 --> 00:16:40,000
+就已經 放暑假
+the summer break has already begun,
+
+475
+00:16:40,000 --> 00:16:43,000
+一直到九月初 九月中才開學
+and we don’t start the fall semester until early to mid‑September.
+
+476
+00:16:43,000 --> 00:16:45,000
+所以有 完完整整的 三個月
+That gives you a full three months.
+
+477
+00:16:45,000 --> 00:16:49,000
+所以其實 暑假 去實習2個月 是最好的
+So doing a two‑month internship in the summer is ideal.
+
+478
+00:16:49,000 --> 00:16:51,000
+當然學生們
+Of course, students
+
+479
+00:16:51,000 --> 00:16:54,000
+年輕人 可能要搭配 他的社團活動
+may need to coordinate with your club activities,
+
+480
+00:16:54,000 --> 00:16:56,000
+比如說 系學會活動 或社團活動
+like department association or other student clubs.
+
+481
+00:16:56,000 --> 00:16:58,000
+你們在 寒暑假的時候
+During winter and summer breaks,
+
+482
+00:16:58,000 --> 00:17:00,000
+會出隊 會去哪裡
+you might go on trips or activities with your groups,
+
+483
+00:17:00,000 --> 00:17:02,000
+但其實還是可以去 安插一下
+but you can still fit an internship in there.
+
+484
+00:17:02,000 --> 00:17:04,000
+也就是說 你暑假實習 那2個月
+In other words, for those two months of summer internship,
+
+485
+00:17:04,000 --> 00:17:07,000
+尤其 大一升大二的暑假
+especially in the summer after freshman year,
+
+486
+00:17:07,000 --> 00:17:09,000
+就可以實習
+you can already start interning.
+
+487
+00:17:09,000 --> 00:17:13,000
+沒有說 實習一定要到 大三 大四 之後才去實習
+There’s no rule that says you must wait until junior or senior year to intern.
+
+488
+00:17:13,000 --> 00:17:15,000
+因為你等到 去實習之後
+Because if you wait until you finally go intern,
+
+489
+00:17:15,000 --> 00:17:17,000
+再回過頭來想
+and only then look back and realize,
+
+490
+00:17:17,000 --> 00:17:20,000
+我不喜歡 那個環境
+“I don’t like that environment,”
+
+491
+00:17:20,000 --> 00:17:24,000
+商業跟管理的環境 都是跟人做溝通
+remember that business and management are all about communicating with people—
+
+492
+00:17:24,000 --> 00:17:25,000
+它是 商業交易
+it’s commercial exchange—
+
+493
+00:17:25,000 --> 00:17:28,000
+它是要 不是自己硬幹 就可以了
+it’s not something you can just grind through alone.
+
+494
+00:17:28,000 --> 00:17:30,000
+所以你 越早去實習
+So the earlier you intern,
+
+495
+00:17:30,000 --> 00:17:34,000
+對於 去涉略這個領域裡面的 相關知識
+the more you’ll be exposed to knowledge in that field;
+
+496
+00:17:34,000 --> 00:17:35,000
+回來學校之後
+when you come back to school afterwards
+
+497
+00:17:35,000 --> 00:17:37,000
+還要 再去修課
+and continue taking courses,
+
+498
+00:17:37,000 --> 00:17:38,000
+就會 有感覺
+you’ll really feel the relevance.
+
+499
+00:17:38,000 --> 00:17:40,000
+否則等到 你大三 像剛剛講的
+Otherwise, by the time you’re a junior—like I said earlier—
+
+500
+00:17:40,000 --> 00:17:42,000
+你全部128(學分) 都修完了
+if you’ve already finished all 128 credits,
+
+501
+00:17:42,000 --> 00:17:43,000
+你再去 實習
+and then you go to intern,
+
+502
+00:17:43,000 --> 00:17:44,000
+如果這個時候 你想
+and at that point you think,
+
+503
+00:17:44,000 --> 00:17:46,000
+我應該還要 再補充什麼 的時候
+“What else should I make up for?”
+
+504
+00:17:46,000 --> 00:17:48,000
+你學分 已經都修完了
+your credits are already done.
+
+505
+00:17:48,000 --> 00:17:50,000
+所以其實是可以 提前的
+So it’s definitely possible to start earlier.
+
+506
+00:17:50,000 --> 00:17:51,000
+我們(IBS)有三個(次)領域
+In IBS we have three sub‑fields (tracks).
+
+507
+00:17:51,000 --> 00:17:53,000
+大概比較 財金(次領域)可以硬幹
+Roughly speaking, Finance is the track where you can mostly work solo—
+
+508
+00:17:53,000 --> 00:17:55,000
+(就是比較)不用跟別人溝通
+it requires relatively less communication with others.
+
+509
+00:17:55,000 --> 00:17:58,000
+你想做什麼 你自己都可以 在你桌子處理完
+If it’s something you want to do, you can often handle it at your desk by yourself.
+
+510
+00:17:58,000 --> 00:18:00,000
+但是你如果做 行銷
+But if you do Marketing,
+
+511
+00:18:00,000 --> 00:18:04,000
+你要去 跟你的顧客 做溝通 做互動
+you need to communicate and interact with your customers.
+
+512
+00:18:04,000 --> 00:18:07,000
+通常 輔系 都只要 25-30學分
+Typically, a minor takes only about 25–30 credits,
+
+513
+00:18:07,000 --> 00:18:09,000
+輔系 好像要看學系
+though it depends on the department.
+
+514
+00:18:09,000 --> 00:18:11,000
+(去輔修)財金系 好像27學分
+For example, a Finance minor is around 27 credits.
+
+515
+00:18:11,000 --> 00:18:13,000
+所以要 提早做規劃
+So make your plans early.
+
+516
+00:18:13,000 --> 00:18:15,000
+(輔系)就是 20-30學分 之間
+Minors are generally in the 20–30 credit range,
+
+517
+00:18:15,000 --> 00:18:19,000
+然後 雙主修 也是會要 40-50(學分)之間
+and a double major will also require about 40–50 credits.
+
+518
+00:18:19,000 --> 00:18:21,000
+可以看我們(IBS) 別系
+You can check our IBS requirements and those of other departments.
+
+519
+00:18:21,000 --> 00:18:24,000
+別系要來 輔系 雙主修 我們(IBS)的
+For students from other departments who come to minor or double major in IBS,
+
+520
+00:18:24,000 --> 00:18:25,000
+47(學分)
+the requirement is 47 credits.
+
+521
+00:18:25,000 --> 00:18:27,000
+(輔系或雙主修)要修 什麼系 好
+As for which department you should minor or double in,
+
+522
+00:18:27,000 --> 00:18:30,000
+其實要按照 年輕人(唸大學)的目的
+it really depends on your goals for studying at university,
+
+523
+00:18:30,000 --> 00:18:32,000
+或是你現在 目前(對未來)的想像 是什麼
+or your current vision of the future,
+
+524
+00:18:32,000 --> 00:18:33,000
+或是說 你本來就有
+or the plan you already have in mind.
+
+525
+00:18:33,000 --> 00:18:34,000
+設定將來(想做)
+In practice, we more often see students from other departments
+
+526
+00:18:34,000 --> 00:18:36,000
+其實都是 別人(別系)來 輔(系)
+come to minor or double major in IBS;
+
+527
+00:18:36,000 --> 00:18:38,000
+雙(主修) 我們國企系(IBS) 比較多
+as for our IBS students,
+
+528
+00:18:38,000 --> 00:18:39,000
+我們(IBS)出去的
+indeed some of them go for a double major,
+
+529
+00:18:39,000 --> 00:18:40,000
+的確也有人去 雙(主修)
+some even in Electrical Engineering,
+
+530
+00:18:40,000 --> 00:18:42,000
+也有 (輔雙)電機系
+and some IBS students minor in EE,
+
+531
+00:18:42,000 --> 00:18:45,000
+我們(IBS)也有人出去 輔(系)電機 或
+or double major in Computer Science—
+
+532
+00:18:45,000 --> 00:18:47,000
+雙(主修)資工 好像也有
+I believe we’ve seen that too—
+
+533
+00:18:47,000 --> 00:18:48,000
+都有
+there are many possibilities.
+
+534
+00:18:48,000 --> 00:18:50,000
+也有 (輔雙)中文的 也有
+Some also minor in or double major in Chinese literature.
+
+535
+00:18:50,000 --> 00:18:53,000
+所以其實是 這些科系 就是看 年輕人自己
+So in the end, the choice of field depends on you,
+
+536
+00:18:53,000 --> 00:18:55,000
+但是就是 你要把它整合
+but you need to integrate it into a coherent whole.
+
+537
+00:18:55,000 --> 00:18:57,000
+通常你 雙主修 要拼四年畢業
+Usually, trying to graduate in four years with a double major
+
+538
+00:18:57,000 --> 00:18:59,000
+我覺得 這很拼
+is really a heavy lift.
+
+539
+00:18:59,000 --> 00:19:01,000
+當然一定 也會有人想說
+Of course, some will also ask,
+
+540
+00:19:01,000 --> 00:19:03,000
+那我可不可以(接著) 四加一
+“Can I do a 4+1 afterwards?”
+
+541
+00:19:04,000 --> 00:19:06,000
+但是你要想 你到底
+But you have to think carefully: ultimately,
+
+542
+00:19:06,000 --> 00:19:08,000
+輔系或雙主修 再加 四加一 完之後
+after a minor or double major and then a 4+1, 
+
+543
+00:19:08,000 --> 00:19:10,000
+你這一包(學歷) 你這個Profile
+what does your overall profile look like?
+
+544
+00:19:10,000 --> 00:19:12,000
+就是你如果要當一個 K-pop(韓偶歌手)
+It’s like a K‑pop group—
+
+545
+00:19:12,000 --> 00:19:15,000
+你是要 主唱 還是要負責Dancing
+are you the main vocal or the dancer,
+
+546
+00:19:15,000 --> 00:19:17,000
+還是你是要 長得漂亮 就好
+or are you simply the visual?
+
+547
+00:19:17,000 --> 00:19:19,000
+就是 你自己 要選(擇)
+You have to choose for yourself.
+
+548
+00:19:19,000 --> 00:19:21,000
+你如果每樣 都真的那麼厲害
+If you’re truly great at everything,
+
+549
+00:19:21,000 --> 00:19:24,000
+我覺得那也是 需要很努力
+that still takes tremendous effort.
+
+550
+00:19:24,000 --> 00:19:25,000
+所以 都需要(認真)想一想
+So all of this deserves careful thought.
+`;
+        const langData = {
+            "zh-Hant": {
+                pageTitle: "暨大國企系 大一新鮮人須知 親師座談與問答 (駱駱)",
+                headerTitle: "暨大國企系 大一新鮮人須知 親師座談與問答 (駱駱)",
+                langToggle: "English",
+                ncnu: "國立暨南國際大學 (National Chi Nan University, NCNU)",
+                ibs: "國際企業學系 (Department of International Business Studies, IBS)",
+                profLo: "駱世民教授 (Prof. Shihmin Lo)",
+                headerDesc: "身為今年(2025)秋天入學大一學生的導師(academic mentor), 在2025/08/24對暨大(NCNU)國企系(IBS)大一新生與家長們, 所舉辦的親師座談(Parent-Professor Conference)中, 對學生與家長們提出大一新生剛進入暨大與國企系的重要提醒與相關問答解說。",
+                highlightsTitle: "影片重點摘要",
+                watchNow: "觀看片段",
+                hl_1_title: "1. 生活適應與規劃",
+                hl_1_desc: "住宿準備、室友相處、返鄉交通規劃及機車安全提醒。",
+                hl_2_title: "2. 國際化校園環境",
+                hl_2_desc: "與多國籍僑生交朋友，把握雙語校園環境與EMI全英授課機會。",
+                hl_3_title: "3. 學習態度與投入",
+                hl_3_desc: "大一必選修規劃，學習心態調整，以及學分與學習時間的投入建議。",
+                hl_4_title: "4. 多元課程探索",
+                hl_4_desc: "通識課、國企系三大次領域、學分學程、輔系與雙主修的選擇與規劃。",
+                hl_5_title: "5. 職涯探索與準備",
+                hl_5_desc: "企業實習的重要性，建議從大一升大二暑假開始，提早探索未來產業方向。",
+                hl_6_title: "6. 尋求協助的管道",
+                hl_6_desc: "學長姐是最直接的建議來源，遇到問題時也可以主動尋求導師協助。",
+                quizTitle: "小測驗：看看您懂了多少？",
+                learningTitle: "自主學習加油站",
+                pbl_title: "問題導向學習 (Problem-Based Learning, PBL)",
+                pbl_desc: "PBL是一種以學生為中心的教學法，學習始於一個複雜、真實且有意義的問題。學生以小組合作方式，自主探討、研究並尋找解決方案。這個過程不僅學習到學科知識，更培養了批判性思維、解決問題、協作和溝通等關鍵能力。",
+                pjbl_title: "專題導向學習 (Project-Based Learning, PjBL)",
+                pjbl_desc: "與PBL相似，PjBL讓學生透過長時間投入一個真實且複雜的專題、問題或挑戰來深度學習。最終，學生會產出一個公開的產品或發表。此方法強調應用知識、跨學科整合與創新，並培養專案管理與實踐能力。",
+                sdl_title: "自主學習 (Self-Directed Learning, SDL)",
+                sdl_desc: "SDL是指個體主動發起學習需求，設定學習目標，尋找資源，選擇並執行適當的學習策略，並評估學習成果的過程。這是大學學習的核心，也是終身學習的基礎。影片中提到的線上課程(MOOCs)、自主學習學分等都是實踐SDL的方式。",
+                cl_title: "小組協同學習 (Collaborative Learning)",
+                cl_desc: "這是一種教學安排，讓學生在小組中共同努力以完成特定任務或達成學習目標。成員們彼此依賴、互相負責，透過討論、分享與互助，共同建構知識。這不僅能深化學習，更能提升人際互動與團隊合作的技巧。",
+                subtitlesTitle: "雙語字幕稿 (點擊可跳轉)",
+                loadingSubtitles: "字幕載入中...",
+                footer: "暨大國企系新生指南・Gemini 互動網頁製作",
+                scrollToPlayer: "回到播放器",
+                retakeQuiz: "再試一次"
+            },
+            "en": {
+                pageTitle: "NCNU IBS Freshman Guide: Parent-Professor Conference (Prof. Lo)",
+                headerTitle: "NCNU IBS Freshman Guide: Parent-Professor Conference (Prof. Lo)",
+                langToggle: "繁中",
+                ncnu: "National Chi Nan University (NCNU)",
+                ibs: "Department of International Business Studies (IBS)",
+                profLo: "Prof. Shihmin Lo",
+                headerDesc: "As the academic mentor for freshmen enrolling in Fall 2025, Prof. Lo provides important reminders and answers questions for new students and parents of the NCNU IBS department during the Parent-Professor Conference on August 24, 2025.",
+                highlightsTitle: "Video Highlights",
+                watchNow: "Watch Clip",
+                hl_1_title: "1. Life Adjustment & Planning",
+                hl_1_desc: "Dorm preparation, getting along with roommates, planning transportation home, and scooter safety.",
+                hl_2_title: "2. International Campus Environment",
+                hl_2_desc: "Making friends with multinational students, and seizing opportunities in the bilingual campus and EMI courses.",
+                hl_3_title: "3. Learning Attitude & Commitment",
+                hl_3_desc: "Planning for required/elective courses, adjusting study habits, and advice on credit vs. time investment.",
+                hl_4_title: "4. Diverse Academic Exploration",
+                hl_4_desc: "Choosing general education courses, IBS tracks, credit programs, minors, and double majors.",
+                hl_5_title: "5. Career Exploration & Preparation",
+                hl_5_desc: "The importance of internships, suggesting starting from the summer after freshman year to explore future industries early.",
+                hl_6_title: "6. Channels for Seeking Help",
+                hl_6_desc: "Senior students are the most direct source of advice, and mentors are available for guidance.",
+                quizTitle: "Quiz: How Much Did You Absorb?",
+                learningTitle: "Self-Directed Learning Hub",
+                pbl_title: "Problem-Based Learning (PBL)",
+                pbl_desc: "PBL is a student-centered pedagogy where learning begins with a complex, authentic, and meaningful problem. Students work in small groups to investigate, research, and find solutions. This process develops not only subject knowledge but also critical thinking, problem-solving, collaboration, and communication skills.",
+                pjbl_title: "Project-Based Learning (PjBL)",
+                pjbl_desc: "Similar to PBL, PjBL involves students in a deep learning experience by engaging them in a real-world, complex project, problem, or challenge over an extended period. Students ultimately produce a public product or presentation. This method emphasizes knowledge application, interdisciplinary integration, innovation, and project management skills.",
+                sdl_title: "Self-Directed Learning (SDL)",
+                sdl_desc: "SDL is a process in which individuals take the initiative to diagnose their learning needs, formulate goals, identify resources, choose and implement appropriate learning strategies, and evaluate learning outcomes. It's the core of university study and the foundation for lifelong learning. MOOCs and SDL credits mentioned in the video are ways to practice this.",
+                cl_title: "Collaborative Learning",
+                cl_desc: "This is an instructional arrangement where students work together in small groups to accomplish a specific task or achieve a learning goal. Members are mutually dependent and accountable, co-constructing knowledge through discussion, sharing, and helping one another. It not only deepens learning but also enhances interpersonal and teamwork skills.",
+                subtitlesTitle: "Bilingual Subtitles (Click to Jump)",
+                loadingSubtitles: "Loading subtitles...",
+                footer: "NCNU IBS Freshman Guide. Interactive Webpage by Gemini.",
+                scrollToPlayer: "Scroll to Player",
+                retakeQuiz: "Try Again"
+            }
+        };
+
+        const fullQuizData = [
+            // Category 1: 生活適應與規劃
+            {
+                category: 1,
+                question_zh: "在宿舍生活中，若遇到室友打呼或作息不同等困擾，教授建議的第一步是什麼？",
+                question_en: "In dorm life, if you encounter issues like a roommate snoring or different schedules, what is the first step the professor recommends?",
+                answers: [
+                    { text_zh: "直接向學校投訴", text_en: "Complain directly to the school", correct: false },
+                    { text_zh: "自己默默忍受", text_en: "Suffer in silence", correct: false },
+                    { text_zh: "詢問學長姐的經驗", text_en: "Ask senior students for their experience", correct: true },
+                    { text_zh: "馬上要求更換宿舍", text_en: "Immediately request a room change", correct: false }
+                ],
+                feedback_correct_zh: "答對了！教授認為詢問學長姐是最直接、方便的解決方式。",
+                feedback_correct_en: "Correct! The professor believes asking senior students is the most direct and convenient way to find a solution."
+            },
+            {
+                category: 1,
+                question_zh: "關於騎乘機車，影片中特別提醒的安全考量是什麼？",
+                question_en: "Regarding riding a scooter, what specific safety consideration is highlighted in the video?",
+                answers: [
+                    { text_zh: "一定要買最新款的機車", text_en: "You must buy the newest model of scooter", correct: false },
+                    { text_zh: "除了自己的騎車技術，也要考量載你的人是否很會騎車", text_en: "Besides your own riding skills, also consider if the person giving you a ride is a skilled rider", correct: true },
+                    { text_zh: "只要有駕照就可以隨意騎車上路", text_en: "As long as you have a license, you can ride freely", correct: false },
+                    { text_zh: "只在白天騎車就絕對安全", text_en: "It is absolutely safe as long as you only ride during the day", correct: false }
+                ],
+                feedback_correct_zh: "完全正確！教授強調了評估駕駛者(無論是自己或他人)技術的重要性。",
+                feedback_correct_en: "Absolutely correct! The professor emphasized the importance of evaluating the rider's skill, whether it's yourself or someone else."
+            },
+            // Category 2: 國際化校園環境
+            {
+                category: 2,
+                question_zh: "暨南大學的「國際」特色主要體現在哪一方面？",
+                question_en: "What is the main aspect that reflects the 'International' characteristic of National Chi Nan University?",
+                answers: [
+                    { text_zh: "校園內有很多外國餐廳", text_en: "There are many foreign restaurants on campus", correct: false },
+                    { text_zh: "學校建築風格很西化", text_en: "The campus architecture is very Westernized", correct: false },
+                    { text_zh: "擁有相當高比例的僑生", text_en: "It has a significantly high proportion of overseas Chinese students", correct: true },
+                    { text_zh: "每年都會舉辦國際旅遊展", text_en: "It holds an international travel fair every year", correct: false }
+                ],
+                feedback_correct_zh: "是的！影片中提到暨大的僑生比例在全國名列前茅，這是其國際化的重要標誌。",
+                feedback_correct_en: "Yes! The video mentions that NCNU's proportion of overseas Chinese students is among the highest in the nation, a key sign of its internationalization."
+            },
+            {
+                category: 2,
+                question_zh: "對於大一新生修習EMI(全英語授課)課程，教授的主要建議是什麼？",
+                question_en: "What is the professor's main advice for freshmen regarding taking EMI (English as a Medium of Instruction) courses?",
+                answers: [
+                    { text_zh: "等到大三英文變好再修", text_en: "Wait until junior year when your English is better", correct: false },
+                    { text_zh: "最好從大一就開始接觸", text_en: "It's best to start taking them from freshman year", correct: true },
+                    { text_zh: "盡量避免修EMI課程", text_en: "Try to avoid EMI courses as much as possible", correct: false },
+                    { text_zh: "只修1學分的EMI課就好", text_en: "Only take 1-credit EMI courses", correct: false }
+                ],
+                feedback_correct_zh: "完全正確！教授建議趁著剛從高中畢業，記憶猶新時開始修EMI課，避免未來產生轉換障礙。",
+                feedback_correct_en: "Perfect! The professor advises starting EMI courses right after high school while the knowledge is still fresh to avoid transition hurdles later."
+            },
+            // Category 3: 學習態度與投入
+            {
+                category: 3,
+                question_zh: "根據教授的「乘以三倍」原則，一門3學分的課，除了上課的3小時外，每週建議投入多少小時進行課前預習與課後複習？",
+                question_en: "According to the professor's 'times-three' rule, for a 3-credit course, besides the 3 hours in class, how many hours per week are recommended for pre-class and post-class study?",
+                answers: [
+                    { text_zh: "3 小時", text_en: "3 hours", correct: false },
+                    { text_zh: "6 小時", text_en: "6 hours", correct: true },
+                    { text_zh: "9 小時", text_en: "9 hours", correct: false },
+                    { text_zh: "不需要額外時間", text_en: "No extra time is needed", correct: false }
+                ],
+                feedback_correct_zh: "精準！總投入時間應為 3x3=9 小時，扣除上課3小時，等於課外要投入6小時。",
+                feedback_correct_en: "Precisely! The total investment should be 3x3=9 hours. Subtracting the 3 in-class hours leaves 6 hours for outside study."
+            },
+            {
+                category: 3,
+                question_zh: "教授不建議大一新生一學期修超過25學分的主要原因是什麼？",
+                question_en: "What is the main reason the professor advises against freshmen taking more than 25 credits per semester?",
+                answers: [
+                    { text_zh: "因為學校系統不允許", text_en: "Because the school system doesn't allow it", correct: false },
+                    { text_zh: "因為會沒有時間參加社團活動", text_en: "Because there will be no time for club activities", correct: false },
+                    { text_zh: "因為沒有足夠時間去消化吸收所學知識", text_en: "Because there isn't enough time to digest and absorb the knowledge", correct: true },
+                    { text_zh: "因為學費會變得非常昂貴", text_en: "Because the tuition fees would become very expensive", correct: false }
+                ],
+                feedback_correct_zh: "答對了！教授的核心觀點是，學習重質不重量，修太多學分反而會導致學得不扎實。",
+                feedback_correct_en: "Correct! The professor's core belief is that learning quality is more important than quantity, and taking too many credits can lead to superficial understanding."
+            },
+            // Category 4: 多元課程探索
+            {
+                category: 4,
+                question_zh: "在決定要不要選一門通識或選修課之前，教授強調一定要做的功課是什麼？",
+                question_en: "Before deciding whether to take a general education or elective course, what preparation does the professor emphasize is essential?",
+                answers: [
+                    { text_zh: "只看課程名稱甜不甜", text_en: "Just look at whether the course title sounds easy or 'sweet'", correct: false },
+                    { text_zh: "詢問授課老師的星座", text_en: "Ask for the professor's zodiac sign", correct: false },
+                    { text_zh: "點進去看詳細的課程大綱", text_en: "Click in to read the detailed course syllabus", correct: true },
+                    { text_zh: "看有多少人選這門課", text_en: "See how many people have enrolled in the course", correct: false }
+                ],
+                feedback_correct_zh: "沒錯！教授提醒大家不能只看課名，一定要詳讀課程大綱，了解每週的上課內容。",
+                feedback_correct_en: "That's right! The professor reminds everyone not to judge a course by its title but to read the syllabus carefully to understand the weekly topics."
+            },
+            {
+                category: 4,
+                question_zh: "影片中提到，大一新生是否可以修習大二的選修課程？",
+                question_en: "According to the video, can a freshman take a sophomore-level elective course?",
+                answers: [
+                    { text_zh: "絕對不行，有嚴格的年級限制", text_en: "Absolutely not, there are strict grade-level restrictions", correct: false },
+                    { text_zh: "可以，只要上課時間不衝突，並取得老師加簽", text_en: "Yes, as long as the class time doesn't conflict and they get the instructor's consent to add the course", correct: true },
+                    { text_zh: "可以，但僅限於體育類選修", text_en: "Yes, but only for physical education electives", correct: false },
+                    { text_zh: "不行，除非有家長同意書", text_en: "No, unless they have a consent form from their parents", correct: false }
+                ],
+                feedback_correct_zh: "是的！大學選課相對自由，只要時間允許且符合規定(如加簽)，就可以跨年級選修。",
+                feedback_correct_en: "Yes! Course selection in university is relatively flexible. As long as the schedule allows and regulations (like getting an add code) are met, cross-grade enrollment is possible."
+            },
+            // Category 5: 職涯探索與準備
+            {
+                category: 5,
+                question_zh: "教授為什麼特別推薦學生提早(如大一升大二的暑假)去實習？",
+                question_en: "Why does the professor particularly recommend that students do internships early (e.g., the summer after freshman year)?",
+                answers: [
+                    { text_zh: "因為高年級的實習薪水比較低", text_en: "Because internships for upperclassmen pay less", correct: false },
+                    { text_zh: "提早了解產業環境，有助於後續修課更有感", text_en: "To understand the industry environment early, which makes subsequent courses more relevant", correct: true },
+                    { text_zh: "因為大一的暑假時間特別長", text_en: "Because the freshman summer break is exceptionally long", correct: false },
+                    { text_zh: "這樣可以提早畢業", text_en: "So they can graduate earlier", correct: false }
+                ],
+                feedback_correct_zh: "完全正確！提早實習可以讓你帶著業界的視角回來學習，更能體會理論與實務的連結。",
+                feedback_correct_en: "Exactly! Interning early allows you to bring an industry perspective back to your studies, better connecting theory with practice."
+            },
+            {
+                category: 5,
+                question_zh: "在國企系的三個次領域中，教授認為哪個領域相對更需要獨立作業，較少與人直接溝通？",
+                question_en: "Among the three sub-fields in the IBS department, which one does the professor believe requires more independent work and less direct communication with people?",
+                answers: [
+                    { text_zh: "國際行銷與創新", text_en: "International Marketing & Innovation", correct: false },
+                    { text_zh: "國際企業經營與策略", text_en: "International Business Operations & Strategy", correct: false },
+                    { text_zh: "國際金融與財務", text_en: "International Finance & Financial Management", correct: true },
+                    { text_zh: "影片中未提及", text_en: "It was not mentioned in the video", correct: false }
+                ],
+                feedback_correct_zh: "答對了！教授提到財金領域相對可以「硬幹」，很多工作可以在自己的辦公桌上完成。",
+                feedback_correct_en: "Correct! The professor mentioned that the finance field is one where you can 'work solo,' as much of the work can be completed at your own desk."
+            },
+            // Category 6: 尋求協助的管道
+            {
+                category: 6,
+                question_zh: "影片中提到，在網路上或向他人請教問題時，應該避免「伸手牌」的行為，指的是什麼？",
+                question_en: "The video mentions avoiding being a 'hand-stretcher' (伸手牌) when asking questions online or in person. What does this refer to?",
+                answers: [
+                    { text_zh: "在問問題前，要先自己去研究、找資料(爬文)", text_en: "Before asking a question, you should first do your own research and look for information ('爬文')", correct: true },
+                    { text_zh: "問問題時要舉手", text_en: "You should raise your hand when asking a question", correct: false },
+                    { text_zh: "不要問太簡單的問題", text_en: "Don't ask questions that are too simple", correct: false },
+                    { text_zh: "請教問題後要請客", text_en: "You should treat the person to a meal after they answer your question", correct: false }
+                ],
+                feedback_correct_zh: "是的！自主學習的第一步就是先嘗試自己尋找答案，這也是大學生應具備的重要能力。",
+                feedback_correct_en: "Yes! The first step in self-directed learning is to try to find the answers yourself, which is an important skill for university students."
+            },
+            {
+                category: 6,
+                question_zh: "除了詢問學長姐之外，當學生對於「修課規劃」需要建議時，影片還提到了可以找誰？",
+                question_en: "Besides asking senior students, who else does the video mention that students can turn to for advice on 'course planning'?",
+                answers: [
+                    { text_zh: "校安中心", text_en: "The campus security office", correct: false },
+                    { text_zh: "自己的導師", text_en: "Their own academic mentor", correct: true },
+                    { text_zh: "宿舍管理員", text_en: "The dormitory manager", correct: false },
+                    { text_zh: "餐廳老闆", text_en: "The cafeteria owner", correct: false }
+                ],
+                feedback_correct_zh: "完全正確！導師(academic mentor)是協助學生進行學業規劃與解惑的重要資源。",
+                feedback_correct_en: "Absolutely correct! The academic mentor is a crucial resource for helping students with academic planning and answering questions."
+            }
+        ];
+
+
+        // --- Global State ---
+        let currentLang = 'zh-Hant';
+        let player;
+        let subtitles = [];
+        let subtitleSyncInterval;
+        let displayedQuestionIndices = new Set();
+
+
+        // --- Functions ---
+
+        // 1. YouTube Player Setup
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '100%',
+                width: '100%',
+                videoId: 'vozEwUakzbs',
+                playerVars: {
+                    'playsinline': 1,
+                    'rel': 0, // Hide related videos
+                    'modestbranding': 1 // Less YouTube branding
+                },
+                events: {
+                    'onReady': onPlayerReady
+                }
+            });
+        }
+        
+        function onPlayerReady(event) {
+            // Player is ready, we can now set up interactions
+            setupVideoInteractions();
+            // Start syncing subtitles with video time
+            subtitleSyncInterval = setInterval(syncSubtitle, 500);
+        }
+
+        function seekTo(seconds) {
+            if (player && typeof player.seekTo === 'function') {
+                player.seekTo(seconds, true);
+                player.playVideo();
+            }
+        }
+
+        function setupVideoInteractions() {
+            document.querySelectorAll('.seek-video').forEach(button => {
+                button.addEventListener('click', () => {
+                    const time = button.getAttribute('data-time');
+                    seekTo(parseInt(time));
+                });
+            });
+        }
+        
+        // 2. Language & Theme Toggling
+        function toggleLanguage() {
+            currentLang = (currentLang === 'zh-Hant') ? 'en' : 'zh-Hant';
+            updateAllText();
+            renderSubtitles();
+            renderQuiz();
+        }
+
+        function updateAllText() {
+            const langDict = langData[currentLang];
+            document.querySelectorAll('[data-lang-key]').forEach(el => {
+                const key = el.getAttribute('data-lang-key');
+                const attr = el.getAttribute('data-lang-attr');
+                if (langDict[key]) {
+                    if (attr) {
+                        el.setAttribute(attr, langDict[key]);
+                    } else {
+                        el.textContent = langDict[key];
+                    }
+                }
+            });
+            document.documentElement.lang = currentLang === 'zh-Hant' ? 'zh-Hant' : 'en';
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const isDark = html.classList.toggle('dark');
+            document.getElementById('theme-icon-light').classList.toggle('hidden', isDark);
+            document.getElementById('theme-icon-dark').classList.toggle('hidden', !isDark);
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+
+        // 3. SRT & Subtitle Handling
+        function parseSRT(srtText) {
+            const blocks = srtText.trim().split('\n\n');
+            return blocks.map(block => {
+                const lines = block.split('\n');
+                if (lines.length < 3) return null;
+                const id = parseInt(lines[0], 10);
+                const timeMatch = lines[1].match(/(\d{2}):(\d{2}):(\d{2}),(\d{3}) --> (\d{2}):(\d{2}):(\d{2}),(\d{3})/);
+                if (!timeMatch) return null;
+
+                const parseTime = (h, m, s, ms) => parseInt(h, 10) * 3600 + parseInt(m, 10) * 60 + parseInt(s, 10) + parseInt(ms, 10) / 1000;
+                
+                const startTime = parseTime(timeMatch[1], timeMatch[2], timeMatch[3], timeMatch[4]);
+                const endTime = parseTime(timeMatch[5], timeMatch[6], timeMatch[7], timeMatch[8]);
+                
+                const text_zh = lines[2];
+                const text_en = lines.slice(3).join(' '); // Join remaining lines for English text
+
+                return { id, startTime, endTime, text_zh, text_en };
+            }).filter(Boolean); // Filter out any null entries
+        }
+        
+        function renderSubtitles() {
+            const container = document.getElementById('subtitle-container');
+            container.innerHTML = '';
+            subtitles.forEach(sub => {
+                const p = document.createElement('p');
+                p.className = 'subtitle-item cursor-pointer p-2 rounded-md hover:bg-amber-100 dark:hover:bg-gray-700 transition-colors duration-200';
+                p.setAttribute('data-time', sub.startTime);
+                p.setAttribute('data-id', sub.id);
+
+                const text = (currentLang === 'zh-Hant') ? sub.text_zh : sub.text_en;
+                const time = new Date(sub.startTime * 1000).toISOString().substr(11, 8);
+                
+                p.innerHTML = `<span class="font-mono text-xs text-amber-600 dark:text-amber-400 mr-2">[${time}]</span> ${text}`;
+
+                p.addEventListener('click', () => {
+                    seekTo(sub.startTime);
+                });
+
+                container.appendChild(p);
+            });
+        }
+
+        function syncSubtitle() {
+            if (!player || typeof player.getCurrentTime !== 'function' || subtitles.length === 0) {
+                return;
+            }
+            const currentTime = player.getCurrentTime();
+            let activeSubId = -1;
+
+            for (const sub of subtitles) {
+                if (currentTime >= sub.startTime && currentTime <= sub.endTime) {
+                    activeSubId = sub.id;
+                    break;
+                }
+            }
+
+            document.querySelectorAll('.subtitle-item').forEach(item => {
+                if (parseInt(item.dataset.id) === activeSubId) {
+                    if (!item.classList.contains('active')) {
+                        item.classList.add('active');
+                        item.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+                    }
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+        
+        // 4. Quiz Logic
+        function getNewQuizSet() {
+            let availableQuestions = fullQuizData.map((_, i) => i).filter(i => !displayedQuestionIndices.has(i));
+            
+            if (availableQuestions.length < 3) {
+                displayedQuestionIndices.clear();
+                availableQuestions = fullQuizData.map((_, i) => i);
+            }
+
+            const selectedIndices = [];
+            for (let i = 0; i < 3; i++) {
+                const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+                const selectedIndex = availableQuestions.splice(randomIndex, 1)[0];
+                selectedIndices.push(selectedIndex);
+                displayedQuestionIndices.add(selectedIndex);
+            }
+            
+            return selectedIndices.map(i => fullQuizData[i]);
+        }
+
+        function renderQuiz(questionsToRender) {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+            questionsToRender.forEach((q, index) => {
+                const originalIndex = fullQuizData.indexOf(q);
+                const questionText = currentLang === 'zh-Hant' ? q.question_zh : q.question_en;
+                
+                const quizBlock = document.createElement('div');
+                quizBlock.className = 'card p-6';
+                
+                let answersHTML = '';
+                q.answers.forEach((ans) => {
+                    const answerText = currentLang === 'zh-Hant' ? ans.text_zh : ans.text_en;
+                    answersHTML += `
+                        <button data-correct="${ans.correct}" class="quiz-option w-full text-left p-3 my-2 rounded-lg btn-secondary">
+                            ${answerText}
+                        </button>
+                    `;
+                });
+
+                quizBlock.innerHTML = `
+                    <h3 class="font-bold text-lg mb-4">${questionText}</h3>
+                    <div class="answer-options">${answersHTML}</div>
+                    <div data-question-index="${originalIndex}" class="feedback mt-4 text-sm font-semibold hidden"></div>
+                `;
+                
+                container.appendChild(quizBlock);
+            });
+            
+            setupQuizInteractions();
+        }
+
+        function setupQuizInteractions() {
+            document.querySelectorAll('.quiz-option').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const isCorrect = button.dataset.correct === 'true';
+                    const feedbackEl = button.parentElement.nextElementSibling;
+                    const questionIndex = parseInt(feedbackEl.dataset.questionIndex);
+                    const questionData = fullQuizData[questionIndex];
+                    const optionsContainer = button.parentElement;
+
+                    optionsContainer.querySelectorAll('.quiz-option').forEach(btn => {
+                        btn.disabled = true;
+                        btn.classList.remove('btn-secondary');
+                        if (btn.dataset.correct === 'true') {
+                           btn.classList.add('!bg-green-500', '!text-white');
+                        }
+                    });
+
+                    if (isCorrect) {
+                        feedbackEl.textContent = currentLang === 'zh-Hant' ? questionData.feedback_correct_zh : questionData.feedback_correct_en;
+                        feedbackEl.className = 'feedback mt-4 text-sm font-semibold text-green-600 dark:text-green-400';
+                    } else {
+                        e.target.classList.add('!bg-red-500', '!text-white');
+                        feedbackEl.textContent = currentLang === 'zh-Hant' ? questionData.feedback_incorrect_zh : questionData.feedback_incorrect_en;
+                        feedbackEl.className = 'feedback mt-4 text-sm font-semibold text-red-600 dark:text-red-400';
+                    }
+                    feedbackEl.classList.remove('hidden');
+                });
+            });
+        }
+        
+        // 5. Accordion for Self-Learning Section
+        function setupAccordion() {
+             document.querySelectorAll('.learning-item button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const content = button.nextElementSibling;
+                    const isVisible = !content.classList.contains('hidden');
+
+                    // Optional: Close other items when one is opened
+                    document.querySelectorAll('.learning-item div').forEach(div => {
+                        if (div !== content) {
+                           div.classList.add('hidden');
+                        }
+                    });
+
+                    content.classList.toggle('hidden');
+                });
+            });
+        }
+
+        // 6. Scroll to Player Button Logic
+        function setupScrollButton() {
+            const scrollToPlayerBtn = document.getElementById('scroll-to-player-btn');
+            const playerContainer = document.getElementById('player');
+            if (!scrollToPlayerBtn || !playerContainer) return;
+
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        scrollToPlayerBtn.classList.add('opacity-0', 'hidden');
+                    } else {
+                        scrollToPlayerBtn.classList.remove('hidden');
+                        setTimeout(() => scrollToPlayerBtn.classList.remove('opacity-0'), 10); // for transition
+                    }
+                });
+            }, { rootMargin: "0px 0px 0px 0px", threshold: 0 });
+
+            observer.observe(playerContainer);
+
+            scrollToPlayerBtn.addEventListener('click', () => {
+                playerContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+        }
+
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load YouTube API script
+            const tag = document.createElement('script');
+            tag.src = "https://www.youtube.com/iframe_api";
+            const firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+            
+            // Setup toggles
+            document.getElementById('lang-toggle').addEventListener('click', toggleLanguage);
+            document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+            document.getElementById('retake-quiz-btn').addEventListener('click', () => renderQuiz(getNewQuizSet()));
+            
+            // Check for saved theme preference
+            if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                toggleTheme(); // Initial toggle to dark if preferred
+            }
+
+            // Parse and render data
+            subtitles = parseSRT(srtContent);
+            renderSubtitles();
+            renderQuiz(getNewQuizSet());
+            
+            // Setup UI components
+            setupAccordion();
+            setupScrollButton();
+
+            // Initial text render
+            updateAllText();
+        });
+    </script>
+
 </body>
 </html>
+
+
+
